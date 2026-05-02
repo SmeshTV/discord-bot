@@ -1,0 +1,12 @@
+export { default as OverviewTab } from './OverviewTab';
+export { default as UsersTab } from './UsersTab';
+export { default as WarningsTab } from './WarningsTab';
+export { default as TicketsTab } from './TicketsTab';
+export { default as GamesTab } from './GamesTab';
+export { default as ShopTab } from './ShopTab';
+export { default as MediaTab } from './MediaTab';
+export { default as ChatTab } from './ChatTab';
+export { default as SettingsTab } from './SettingsTab';
+export { default as EventsTab } from './EventsTab';
+export { default as RoleApplicationsTab } from './RoleApplicationsTab';
+export { default as PermissionsTab } from './PermissionsTab';
