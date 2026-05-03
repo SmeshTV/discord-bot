@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react';
+﻿import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Clock, Users, Star, ChevronDown,
@@ -7,7 +7,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 
-// Discord Markdown → HTML конвертер
+// Discord Markdown â†’ HTML ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚ÐµÑ€
 const renderDiscordMarkdown = (text: string): string => {
   if (!text) return '';
   return text
@@ -19,7 +19,7 @@ const renderDiscordMarkdown = (text: string): string => {
     .replace(/__(.+?)__/g, '<u>$1</u>')
     .replace(/~~(.+?)~~/g, '<s>$1</s>')
     .replace(/\|\|(.+?)\|\|/g, '<span class="bg-gray-600 text-transparent hover:text-white rounded px-1 cursor-pointer transition-colors">$1</span>')
-    .replace(/^[\s]*[-•]\s+(.+)$/gm, '<li class="ml-4">$1</li>')
+    .replace(/^[\s]*[-â€¢]\s+(.+)$/gm, '<li class="ml-4">$1</li>')
     .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold mt-2">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-2">$1</h2>')
     .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold mt-2">$1</h1>');
@@ -33,7 +33,7 @@ const formatMSK = (dateStr: string, timeStr: string): string => {
   const month = parts[1];
   const hour = timeParts[0];
   const minute = timeParts[1];
-  const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+  const months = ['ÑÐ½Ð²', 'Ñ„ÐµÐ²', 'Ð¼Ð°Ñ€', 'Ð°Ð¿Ñ€', 'Ð¼Ð°Ñ', 'Ð¸ÑŽÐ½', 'Ð¸ÑŽÐ»', 'Ð°Ð²Ð³', 'ÑÐµÐ½', 'Ð¾ÐºÑ‚', 'Ð½Ð¾Ñ', 'Ð´ÐµÐº'];
   return day + ' ' + months[month - 1] + ', ' + String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
 };
 
@@ -73,19 +73,19 @@ interface EventReview {
 }
 
 const gameOptions = [
-  { name: 'Among Us', emoji: '🚀' },
-  { name: 'Шахматы', emoji: '♟️' },
-  { name: 'Дурак', emoji: '🃏' },
-  { name: 'Clash Royale', emoji: '👑' },
-  { name: 'Brawl Stars', emoji: '⭐' },
-  { name: 'Minecraft', emoji: '⛏️' },
-  { name: 'JackBox', emoji: '📦' },
-  { name: 'Бункер', emoji: '🏚️' },
-  { name: 'Шпион', emoji: '🕵️' },
-  { name: 'Codenames', emoji: '🔤' },
-  { name: 'Alias', emoji: '🗣️' },
-  { name: 'Gartic Phone', emoji: '🎨' },
-  { name: 'Roblox', emoji: '🟢' },
+  { name: 'Among Us', emoji: 'ðŸš€' },
+  { name: 'Ð¨Ð°Ñ…Ð¼Ð°Ñ‚Ñ‹', emoji: 'â™Ÿï¸' },
+  { name: 'Ð”ÑƒÑ€Ð°Ðº', emoji: 'ðŸƒ' },
+  { name: 'Clash Royale', emoji: 'ðŸ‘‘' },
+  { name: 'Brawl Stars', emoji: 'â­' },
+  { name: 'Minecraft', emoji: 'â›ï¸' },
+  { name: 'JackBox', emoji: 'ðŸ“¦' },
+  { name: 'Ð‘ÑƒÐ½ÐºÐµÑ€', emoji: 'ðŸšï¸' },
+  { name: 'Ð¨Ð¿Ð¸Ð¾Ð½', emoji: 'ðŸ•µï¸' },
+  { name: 'Codenames', emoji: 'ðŸ”¤' },
+  { name: 'Alias', emoji: 'ðŸ—£ï¸' },
+  { name: 'Gartic Phone', emoji: 'ðŸŽ¨' },
+  { name: 'Roblox', emoji: 'ðŸŸ¢' },
 ];
 
 const syncEventToDiscord = async (event: Event) => {
@@ -97,7 +97,7 @@ const syncEventToDiscord = async (event: Event) => {
         event: event,
         embedSettings: {
           botName: 'LOLA Events',
-          footer: '✨ LOLA Server',
+          footer: 'âœ¨ LOLA Server',
           color: '#00D4FF'
         }
       }
@@ -234,12 +234,12 @@ const EventsPage = () => {
 
     if (now < exclusiveUntil) {
       if (hasReservation) {
-        return { canRegister: true, isExclusive: true, message: '🏆 Ранняя регистрация (резерв)' };
+        return { canRegister: true, isExclusive: true, message: 'ðŸ† Ð Ð°Ð½Ð½ÑÑ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ (Ñ€ÐµÐ·ÐµÑ€Ð²)' };
       } else {
         return {
           canRegister: false,
           isExclusive: true,
-          message: '⏳ Регистрация відкроється ' + exclusiveUntil.toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+          message: 'â³ Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ Ð²Ñ–Ð´ÐºÑ€Ð¾Ñ”Ñ‚ÑŒÑÑ ' + exclusiveUntil.toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
         };
       }
     }
@@ -312,15 +312,15 @@ const EventsPage = () => {
   };
 
   const getEventStatus = (event: Event): { status: 'upcoming' | 'live' | 'completed' | 'cancelled', label: string, color: string } => {
-    if (event.status === 'cancelled') return { status: 'cancelled', label: 'Отменён', color: 'bg-red-500/20 text-red-400' };
+    if (event.status === 'cancelled') return { status: 'cancelled', label: 'ÐžÑ‚Ð¼ÐµÐ½Ñ‘Ð½', color: 'bg-red-500/20 text-red-400' };
 
-    const now = new Date(); // Локальное время (для сравнения дат)
-    const nowUtc = now.getTime(); // UTC timestamp в миллисекундах
+    const now = new Date(); // Ð›Ð¾ÐºÐ°Ð»ÑŒÐ½Ð¾Ðµ Ð²Ñ€ÐµÐ¼Ñ (Ð´Ð»Ñ ÑÑ€Ð°Ð²Ð½ÐµÐ½Ð¸Ñ Ð´Ð°Ñ‚)
+    const nowUtc = now.getTime(); // UTC timestamp Ð² Ð¼Ð¸Ð»Ð»Ð¸ÑÐµÐºÑƒÐ½Ð´Ð°Ñ…
 
-    // Время в БД хранится как MSK. Конвертируем в UTC для сравнения с текущим временем.
+    // Ð’Ñ€ÐµÐ¼Ñ Ð² Ð‘Ð” Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑÑ ÐºÐ°Ðº MSK. ÐšÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð¸Ñ€ÑƒÐµÐ¼ Ð² UTC Ð´Ð»Ñ ÑÑ€Ð°Ð²Ð½ÐµÐ½Ð¸Ñ Ñ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¼ Ð²Ñ€ÐµÐ¼ÐµÐ½ÐµÐ¼.
     const [year, month, day] = event.date.split('-').map(Number);
     const [hour, minute] = (event.time || '00:00').split(':').map(Number);
-    // Date.UTC дает время в UTC. Вычитаем 3 часа, так как в БД время записано как MSK (UTC+3)
+    // Date.UTC Ð´Ð°ÐµÑ‚ Ð²Ñ€ÐµÐ¼Ñ Ð² UTC. Ð’Ñ‹Ñ‡Ð¸Ñ‚Ð°ÐµÐ¼ 3 Ñ‡Ð°ÑÐ°, Ñ‚Ð°Ðº ÐºÐ°Ðº Ð² Ð‘Ð” Ð²Ñ€ÐµÐ¼Ñ Ð·Ð°Ð¿Ð¸ÑÐ°Ð½Ð¾ ÐºÐ°Ðº MSK (UTC+3)
     const eventUtcTimestamp = Date.UTC(year, month - 1, day, hour - 3, minute);
     
     const diffMs = eventUtcTimestamp - nowUtc;
@@ -328,34 +328,34 @@ const EventsPage = () => {
     const diffHours = diffMs / (1000 * 60 * 60);
 
     if (diffHours < -2) {
-      return { status: 'completed', label: 'Завершено', color: 'bg-gray-500/20 text-gray-400' };
+      return { status: 'completed', label: 'Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¾', color: 'bg-gray-500/20 text-gray-400' };
     }
 
     if (diffMinutes <= 0 && diffHours >= -2) {
-      return { status: 'live', label: '🔴 Идёт сейчас', color: 'bg-green-500/20 text-green-400 animate-pulse' };
+      return { status: 'live', label: 'ðŸ”´ Ð˜Ð´Ñ‘Ñ‚ ÑÐµÐ¹Ñ‡Ð°Ñ', color: 'bg-green-500/20 text-green-400 animate-pulse' };
     }
 
     if (diffMinutes > 0 && diffMinutes <= 60) {
-      return { status: 'upcoming', label: '⚡ Скоро почнеться', color: 'bg-orange-500/20 text-orange-400' };
+      return { status: 'upcoming', label: 'âš¡ Ð¡ÐºÐ¾Ñ€Ð¾ Ð¿Ð¾Ñ‡Ð½ÐµÑ‚ÑŒÑÑ', color: 'bg-orange-500/20 text-orange-400' };
     }
 
     const todayStr = now.toISOString().split('T')[0];
     if (event.date === todayStr) {
-      return { status: 'upcoming', label: '📅 Сьогодні', color: 'bg-blue-500/20 text-blue-400' };
+      return { status: 'upcoming', label: 'ðŸ“… Ð¡ÑŒÐ¾Ð³Ð¾Ð´Ð½Ñ–', color: 'bg-blue-500/20 text-blue-400' };
     }
 
     const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
     if (event.date === tomorrowStr) {
-      return { status: 'upcoming', label: '📅 Завтра', color: 'bg-blue-500/20 text-blue-400' };
+      return { status: 'upcoming', label: 'ðŸ“… Ð—Ð°Ð²Ñ‚Ñ€Ð°', color: 'bg-blue-500/20 text-blue-400' };
     }
 
     if (diffMinutes > 60) {
-      return { status: 'upcoming', label: 'Скоро', color: 'bg-blue-500/20 text-blue-400' };
+      return { status: 'upcoming', label: 'Ð¡ÐºÐ¾Ñ€Ð¾', color: 'bg-blue-500/20 text-blue-400' };
     }
 
-    return { status: 'completed', label: 'Завершено', color: 'bg-gray-500/20 text-gray-400' };
+    return { status: 'completed', label: 'Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¾', color: 'bg-gray-500/20 text-gray-400' };
   };
 
     const filteredEvents = events.filter(e => {
@@ -363,7 +363,7 @@ const EventsPage = () => {
     if (filter === 'all') return true;
     return dynamicStatus === filter;
   }).sort((a, b) => {
-    // Сортируем по UTC времени (MSK минус 3 часа)
+    // Ð¡Ð¾Ñ€Ñ‚Ð¸Ñ€ÑƒÐµÐ¼ Ð¿Ð¾ UTC Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ (MSK Ð¼Ð¸Ð½ÑƒÑ 3 Ñ‡Ð°ÑÐ°)
     const [yA, mA, dA] = a.date.split('-').map(Number);
     const [hA, minA] = a.time.split(':').map(Number);
     const [yB, mB, dB] = b.date.split('-').map(Number);
@@ -371,7 +371,7 @@ const EventsPage = () => {
     
     const utcA = Date.UTC(yA, mA - 1, dA, hA - 3, minA);
     const utcB = Date.UTC(yB, mB - 1, dB, hB - 3, minB);
-    return utcB - utcA; // Сначала новые
+    return utcB - utcA; // Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð½Ð¾Ð²Ñ‹Ðµ
   });
 
   const stats = {
@@ -384,7 +384,7 @@ const EventsPage = () => {
   if (loading) {
     return (
       <div className="pt-24 pb-20 px-4 flex items-center justify-center min-h-screen">
-        <div className="text-gray-400">Завантаження подій...</div>
+        <div className="text-gray-400">Ð—Ð°Ð²Ð°Ð½Ñ‚Ð°Ð¶ÐµÐ½Ð½Ñ Ð¿Ð¾Ð´Ñ–Ð¹...</div>
       </div>
     );
   }
@@ -398,8 +398,8 @@ const EventsPage = () => {
         </div>
         
         <PageHeader 
-          title="Події" 
-          subtitle="Розклад подій на сервері LOLA"
+          title="ÐŸÐ¾Ð´Ñ–Ñ—" 
+          subtitle="Ð Ð¾Ð·ÐºÐ»Ð°Ð´ Ð¿Ð¾Ð´Ñ–Ð¹ Ð½Ð° ÑÐµÑ€Ð²ÐµÑ€Ñ– LOLA"
           icon={<CalendarDays className="w-7 h-7 text-white" />}
         />
 
@@ -414,9 +414,9 @@ const EventsPage = () => {
               <div className="flex items-center gap-3">
                 <Trophy className="text-yellow-400" size={24} />
                 <div>
-                  <p className="font-bold text-yellow-400">🏆 У тебе є резерв на турнір!</p>
+                  <p className="font-bold text-yellow-400">ðŸ† Ð£ Ñ‚ÐµÐ±Ðµ Ñ” Ñ€ÐµÐ·ÐµÑ€Ð² Ð½Ð° Ñ‚ÑƒÑ€Ð½Ñ–Ñ€!</p>
                   <p className="text-gray-400 text-sm">
-                    Діє до: {new Date(userReservations[0].expires_at).toLocaleString('ru-RU', { 
+                    Ð”Ñ–Ñ” Ð´Ð¾: {new Date(userReservations[0].expires_at).toLocaleString('ru-RU', { 
                       day: 'numeric', 
                       month: 'long', 
                       hour: '2-digit', 
@@ -430,14 +430,14 @@ const EventsPage = () => {
         )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-mushroom-neon">{stats.total}</div><div className="text-gray-400 text-sm">Всього</div></div>
-          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-blue-400">{stats.upcoming}</div><div className="text-gray-400 text-sm">Предстоящі</div></div>
-          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-green-400">{stats.completed}</div><div className="text-gray-400 text-sm">Завершені</div></div>
-          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-yellow-400">{stats.totalPlayers}</div><div className="text-gray-400 text-sm">Учасників</div></div>
+          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-mushroom-neon">{stats.total}</div><div className="text-gray-400 text-sm">Ð’ÑÑŒÐ¾Ð³Ð¾</div></div>
+          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-blue-400">{stats.upcoming}</div><div className="text-gray-400 text-sm">ÐŸÑ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‰Ñ–</div></div>
+          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-green-400">{stats.completed}</div><div className="text-gray-400 text-sm">Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ñ–</div></div>
+          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-yellow-400">{stats.totalPlayers}</div><div className="text-gray-400 text-sm">Ð£Ñ‡Ð°ÑÐ½Ð¸ÐºÑ–Ð²</div></div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex gap-2 mb-8">
-          {[{ value: 'all', label: 'Всі' }, { value: 'upcoming', label: 'Предстоячі' }, { value: 'completed', label: 'Завершені' }].map(opt => (
+          {[{ value: 'all', label: 'Ð’ÑÑ–' }, { value: 'upcoming', label: 'ÐŸÑ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‡Ñ–' }, { value: 'completed', label: 'Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ñ–' }].map(opt => (
             <button key={opt.value} onClick={() => setFilter(opt.value as typeof filter)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filter === opt.value ? 'bg-mushroom-neon/20 text-mushroom-neon border border-mushroom-neon/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'}`}>
               {opt.label}
@@ -450,7 +450,7 @@ const EventsPage = () => {
             {filteredEvents.length > 0 ? filteredEvents.map((event, index) => {
               const isRegistered = user && event.registered_players.includes(user.id);
               const game = gameOptions.find(g => g.name === event.game);
-              const emoji = game?.emoji || event.game_emoji || '🎮';
+              const emoji = game?.emoji || event.game_emoji || 'ðŸŽ®';
               const reviews = eventReviews[event.id] || [];
               const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
               const dynamicStatus = getEventStatus(event);
@@ -472,7 +472,7 @@ const EventsPage = () => {
                             <span className="flex items-center gap-1"><Clock size={12} /> {formatMSK(event.date, event.time).split(',')[1].trim()}</span>
                             <span className="flex items-center gap-1"><Users size={12} />{event.registered_players.length}/{event.max_players}</span>
                             <span className="flex items-center gap-1"><Gamepad2 size={12} />{event.game}</span>
-                            <span>Ведучий: {event.host_name}</span>
+                            <span>Ð’ÐµÐ´ÑƒÑ‡Ð¸Ð¹: {event.host_name}</span>
                           </div>
                         </div>
                       </div>
@@ -501,7 +501,7 @@ const EventsPage = () => {
                               onClick={() => handleUnregister(event.id)}
                               className="w-full px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-sm transition-all border border-red-500/20"
                             >
-                              Скасувати реєстрацію
+                              Ð¡ÐºÐ°ÑÑƒÐ²Ð°Ñ‚Ð¸ Ñ€ÐµÑ”ÑÑ‚Ñ€Ð°Ñ†Ñ–ÑŽ
                             </button>
                           );
                         }
@@ -510,10 +510,10 @@ const EventsPage = () => {
                           return (
                             <div className="text-center">
                               <div className="px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-                                <div className="text-sm text-yellow-400 font-medium">🏆 Ранняя реєстрація</div>
+                                <div className="text-sm text-yellow-400 font-medium">ðŸ† Ð Ð°Ð½Ð½ÑÑ Ñ€ÐµÑ”ÑÑ‚Ñ€Ð°Ñ†Ñ–Ñ</div>
                                 <div className="text-xs text-gray-400 mt-1">{message}</div>
                                 <a href="/shop" className="inline-block mt-2 text-xs text-mushroom-neon hover:underline">
-                                  Купити резерв на турнір →
+                                  ÐšÑƒÐ¿Ð¸Ñ‚Ð¸ Ñ€ÐµÐ·ÐµÑ€Ð² Ð½Ð° Ñ‚ÑƒÑ€Ð½Ñ–Ñ€ â†’
                                 </a>
                               </div>
                             </div>
@@ -528,7 +528,7 @@ const EventsPage = () => {
                             }`}
                           >
                             <Users size={14} />
-                            {isExclusive ? '🏆 Участвовать (резерв)' : 'Участвовать'}
+                            {isExclusive ? 'ðŸ† Ð£Ñ‡Ð°ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ (Ñ€ÐµÐ·ÐµÑ€Ð²)' : 'Ð£Ñ‡Ð°ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ'}
                           </button>
                         );
                       })()}
@@ -539,9 +539,9 @@ const EventsPage = () => {
             }) : (
               <div className="text-center py-16">
                 <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
-                <p className="text-gray-400 text-lg mb-2">Немає подій</p>
-                <p className="text-gray-500 text-sm">Стекни за анонсами в Discord!</p>
-                <a href="https://discord.gg/lolaamongus" target="_blank" rel="noopener noreferrer" className="btn-discord inline-flex items-center gap-2 mt-6"><ExternalLink size={16} /> Discord сервер</a>
+                <p className="text-gray-400 text-lg mb-2">ÐÐµÐ¼Ð°Ñ” Ð¿Ð¾Ð´Ñ–Ð¹</p>
+                <p className="text-gray-500 text-sm">Ð¡Ñ‚ÐµÐºÐ½Ð¸ Ð·Ð° Ð°Ð½Ð¾Ð½ÑÐ°Ð¼Ð¸ Ð² Discord!</p>
+                <a href="https://discord.gg/lolaamongus" target="_blank" rel="noopener noreferrer" className="btn-discord inline-flex items-center gap-2 mt-6"><ExternalLink size={16} /> Discord ÑÐµÑ€Ð²ÐµÑ€</a>
               </div>
             )}
           </motion.div>
@@ -568,15 +568,15 @@ const EventsPage = () => {
                 <p className="text-gray-300 mb-6 leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderDiscordMarkdown(selectedEvent.description) }} />
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Calendar size={14} />Дата</div><div className="font-bold">{selectedEvent.date}</div></div>
-                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Clock size={14} />Час</div><div className="font-bold">{selectedEvent.time}</div></div>
-                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Users size={14} />Учасники</div><div className="font-bold">{selectedEvent.registered_players.length}/{selectedEvent.max_players}</div></div>
-                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1">Ведучий</div><div className="font-bold">{selectedEvent.host_name}</div></div>
+                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Calendar size={14} />Ð”Ð°Ñ‚Ð°</div><div className="font-bold">{selectedEvent.date}</div></div>
+                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Clock size={14} />Ð§Ð°Ñ</div><div className="font-bold">{selectedEvent.time}</div></div>
+                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Users size={14} />Ð£Ñ‡Ð°ÑÐ½Ð¸ÐºÐ¸</div><div className="font-bold">{selectedEvent.registered_players.length}/{selectedEvent.max_players}</div></div>
+                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1">Ð’ÐµÐ´ÑƒÑ‡Ð¸Ð¹</div><div className="font-bold">{selectedEvent.host_name}</div></div>
                 </div>
 
                 {(eventReviews[selectedEvent.id] || []).length > 0 && (
                   <div className="mb-6">
-                    <h4 className="font-bold mb-3 flex items-center gap-2"><Star size={16} className="text-yellow-400" /> Відгуки ({eventReviews[selectedEvent.id]?.length || 0})</h4>
+                    <h4 className="font-bold mb-3 flex items-center gap-2"><Star size={16} className="text-yellow-400" /> Ð’Ñ–Ð´Ð³ÑƒÐºÐ¸ ({eventReviews[selectedEvent.id]?.length || 0})</h4>
                     <div className="space-y-3">
                       {eventReviews[selectedEvent.id]?.map(review => (
                         <div key={review.id} className="p-3 bg-white/5 rounded-xl">
@@ -593,10 +593,10 @@ const EventsPage = () => {
 
                 {modalStatus.status === 'completed' && user && (
                   <div className="p-4 bg-white/5 rounded-xl mb-6">
-                    <h4 className="font-bold mb-3 text-sm">Залишити відгук про івент</h4>
+                    <h4 className="font-bold mb-3 text-sm">Ð—Ð°Ð»Ð¸ÑˆÐ¸Ñ‚Ð¸ Ð²Ñ–Ð´Ð³ÑƒÐº Ð¿Ñ€Ð¾ Ñ–Ð²ÐµÐ½Ñ‚</h4>
                     <div className="flex gap-1 mb-3">{[1,2,3,4,5].map(star => (<button key={star} onClick={() => setReviewRating(star)}><Star size={24} className={star <= reviewRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'} /></button>))}</div>
-                    <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Як пройшов івент?" rows={2} maxLength={300} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-mushroom-neon focus:outline-none resize-none text-white placeholder-gray-500" />
-                    <button onClick={handleSubmitReview} disabled={!reviewText.trim()} className="mt-2 btn-primary text-sm w-full disabled:opacity-50">Відправити відгук</button>
+                    <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Ð¯Ðº Ð¿Ñ€Ð¾Ð¹ÑˆÐ¾Ð² Ñ–Ð²ÐµÐ½Ñ‚?" rows={2} maxLength={300} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-mushroom-neon focus:outline-none resize-none text-white placeholder-gray-500" />
+                    <button onClick={handleSubmitReview} disabled={!reviewText.trim()} className="mt-2 btn-primary text-sm w-full disabled:opacity-50">Ð’Ñ–Ð´Ð¿Ñ€Ð°Ð²Ð¸Ñ‚Ð¸ Ð²Ñ–Ð´Ð³ÑƒÐº</button>
                   </div>
                 )}
 
@@ -611,7 +611,7 @@ const EventsPage = () => {
                           onClick={() => handleUnregister(selectedEvent.id)}
                           className="flex-1 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-sm font-medium transition-all border border-red-500/20"
                         >
-                          Скасувати реєстрацію
+                          Ð¡ÐºÐ°ÑÑƒÐ²Ð°Ñ‚Ð¸ Ñ€ÐµÑ”ÑÑ‚Ñ€Ð°Ñ†Ñ–ÑŽ
                         </button>
                       </div>
                     );
@@ -620,11 +620,11 @@ const EventsPage = () => {
                   if (!canRegister && isExclusive) {
                     return (
                       <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-center">
-                        <div className="text-lg mb-2">🏆</div>
-                        <div className="text-sm text-yellow-400 font-medium mb-1">Ранняя реєстрація</div>
+                        <div className="text-lg mb-2">ðŸ†</div>
+                        <div className="text-sm text-yellow-400 font-medium mb-1">Ð Ð°Ð½Ð½ÑÑ Ñ€ÐµÑ”ÑÑ‚Ñ€Ð°Ñ†Ñ–Ñ</div>
                         <div className="text-xs text-gray-400">{message}</div>
                         <a href="/shop" className="inline-block mt-3 px-4 py-2 bg-mushroom-neon/20 text-mushroom-neon rounded-xl text-sm font-medium hover:bg-mushroom-neon/30 transition-all">
-                          Купити резерв на турнір →
+                          ÐšÑƒÐ¿Ð¸Ñ‚Ð¸ Ñ€ÐµÐ·ÐµÑ€Ð² Ð½Ð° Ñ‚ÑƒÑ€Ð½Ñ–Ñ€ â†’
                         </a>
                       </div>
                     );
@@ -639,7 +639,7 @@ const EventsPage = () => {
                         }`}
                       >
                         <Users size={16} />
-                        {isExclusive ? '🏆 Участвовать (резерв)' : 'Участвовать'}
+                        {isExclusive ? 'ðŸ† Ð£Ñ‡Ð°ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ (Ñ€ÐµÐ·ÐµÑ€Ð²)' : 'Ð£Ñ‡Ð°ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ'}
                       </button>
                     </div>
                   );
@@ -655,3 +655,4 @@ const EventsPage = () => {
 };
 
 export default memo(EventsPage);
+
