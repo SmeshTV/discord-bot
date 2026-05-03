@@ -34,7 +34,6 @@ interface Event {
 }
 
 const EVENTS_CHANNEL_ID = '1474409280349274397';
-const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL.replace(/\/$/, '')}/functions/v1`;
 
 const games = [
   'Among Us', 'Шахматы', 'Дурак', 'Clash Royale', 'Brawl Stars', 
@@ -139,11 +138,14 @@ const eventData: any = {
       };
 
       if (newEvent.exclusive_enabled && newEvent.exclusive_duration > 0) {
-        const exclusiveUntil = new Date(newEvent.date + 'T' + newEvent.time);
-        exclusiveUntil.setMinutes(exclusiveUntil.getMinutes() - newEvent.exclusive_duration);
+        // Парсим время как MSK и конвертируем в UTC для сохранения
+        const [y, m, d] = newEvent.date.split('-').map(Number);
+        const [h, min] = newEvent.time.split(':').map(Number);
+        const utcMs = Date.UTC(y, m - 1, d, h - 3, min); // MSK -> UTC
+        const exclusiveUntilUTC = new Date(utcMs - newEvent.exclusive_duration * 60 * 1000);
         eventData.exclusive_enabled = true;
         eventData.exclusive_duration = newEvent.exclusive_duration;
-        eventData.exclusive_until = exclusiveUntil.toISOString();
+        eventData.exclusive_until = exclusiveUntilUTC.toISOString();
         eventData.exclusive_description = `⏳ Резерв на ${newEvent.exclusive_duration} мин`;
       }
 
@@ -160,22 +162,20 @@ const eventData: any = {
       // 2. Отправляем в Discord (если включено)
       if (discordSettings.sendToDiscord) {
         try {
-          const response = await fetch(`${FUNCTIONS_URL}/event-discord`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          const { data: result, error: discordError } = await supabase.functions.invoke('event-discord', {
+            body: {
               action: 'create',
               event: savedEvent,
               rolePing: discordSettings.rolePing ? '1467975816297054512' : null,
               createDiscordEvent: discordSettings.createDiscordEvent,
               embedSettings: eventSettings,
-            })
+            }
           });
           
-          const result = await response.json();
+          if (discordError) throw discordError;
           
           // 3. 🔥 Сохраняем messageId и scheduledEventId в БД!
-          if (result.messageId || result.scheduledEventId) {
+          if (result?.messageId || result?.scheduledEventId) {
             await supabase
               .from('events')
               .update({
@@ -184,7 +184,7 @@ const eventData: any = {
               })
               .eq('id', savedEvent.id);
           }
-        } catch (discordError) {
+        } catch (discordError: any) {
           console.error('Discord sync error:', discordError);
           // Не прерываем — событие создано в БД
         }
@@ -232,11 +232,14 @@ const eventData: any = {
 
       // Добавляем эксклюзивные настройки
       if (selectedEvent.exclusive_enabled && selectedEvent.exclusive_duration) {
-        const exclusiveUntil = new Date(selectedEvent.date + 'T' + selectedEvent.time);
-        exclusiveUntil.setMinutes(exclusiveUntil.getMinutes() - selectedEvent.exclusive_duration);
+        // Парсим время как MSK и конвертируем в UTC для сохранения
+        const [y, m, d] = selectedEvent.date.split('-').map(Number);
+        const [h, min] = selectedEvent.time.split(':').map(Number);
+        const utcMs = Date.UTC(y, m - 1, d, h - 3, min); // MSK -> UTC
+        const exclusiveUntilUTC = new Date(utcMs - selectedEvent.exclusive_duration * 60 * 1000);
         updateData.exclusive_enabled = true;
         updateData.exclusive_duration = selectedEvent.exclusive_duration;
-        updateData.exclusive_until = exclusiveUntil.toISOString();
+        updateData.exclusive_until = exclusiveUntilUTC.toISOString();
         updateData.exclusive_description = `⏳ Резерв на ${selectedEvent.exclusive_duration} мин`;
       } else {
         updateData.exclusive_enabled = false;
@@ -264,17 +267,15 @@ const eventData: any = {
             exclusive_description: updateData.exclusive_description,
           };
           
-          await fetch(`${FUNCTIONS_URL}/event-discord`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          await supabase.functions.invoke('event-discord', {
+            body: {
               action: 'update',
               event: eventForDiscord,
               embedSettings: eventSettings,
               highlight: highlight,
-            })
+            }
           });
-        } catch (discordError) {
+        } catch (discordError: any) {
           console.error('Discord update error:', discordError);
         }
       }
@@ -307,17 +308,15 @@ const eventData: any = {
       // 2. Обновляем сообщение в Discord с ЖЁЛТЫМ текстом (если есть ID)
       if (discordSettings.sendToDiscord && event.discord_message_id) {
         try {
-          await fetch(`${FUNCTIONS_URL}/event-discord`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          await supabase.functions.invoke('event-discord', {
+            body: {
               action: 'update',
               event: { ...event, status: 'cancelled' },
               embedSettings: eventSettings,
               highlight: 'cancelled', // 🔥 Флаг для жёлтого текста
-            })
+            }
           });
-        } catch (discordError) {
+        } catch (discordError: any) {
           console.error('Discord cancel error:', discordError);
         }
       }
@@ -341,13 +340,11 @@ const eventData: any = {
       // 1. 🔥 Сначала удаляем сообщение в Discord (если есть ID)
       if (discordSettings.sendToDiscord && event?.discord_message_id) {
         try {
-          await fetch(`${FUNCTIONS_URL}/event-discord`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          await supabase.functions.invoke('event-discord', {
+            body: {
               action: 'delete',
               event: { id: event.id, discord_message_id: event.discord_message_id },
-            })
+            }
           });
         } catch (discordError) {
           console.error('Discord delete error:', discordError);
@@ -357,13 +354,11 @@ const eventData: any = {
       // 2. Удаляем scheduled event если есть
       if (event?.discord_scheduled_event_id) {
         try {
-          await fetch(`${FUNCTIONS_URL}/event-discord`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          await supabase.functions.invoke('event-discord', {
+            body: {
               action: 'delete_scheduled',
               event: { id: event.id, discord_scheduled_event_id: event.discord_scheduled_event_id },
-            })
+            }
           });
         } catch (err) {
           console.error('Failed to delete scheduled event:', err);
@@ -401,17 +396,15 @@ const eventData: any = {
       // 2. Обновляем в Discord (если есть ID)
       if (discordSettings.sendToDiscord && event.discord_message_id) {
         try {
-          await fetch(`${FUNCTIONS_URL}/event-discord`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          await supabase.functions.invoke('event-discord', {
+            body: {
               action: 'update',
               event: { ...event, status: 'upcoming' },
               embedSettings: eventSettings,
               highlight: 'edited',
-            })
+            }
           });
-        } catch (discordError) {
+        } catch (discordError: any) {
           console.error('Discord restore error:', discordError);
         }
       }

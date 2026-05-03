@@ -7,7 +7,6 @@ const EVENTS_CHANNEL_ID = Deno.env.get('DISCORD_EVENTS_CHANNEL_ID') || '14744092
 const BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN');
 const ROLE_ID = Deno.env.get('DISCORD_EVENT_ROLE_ID') || '1467975816297054512';
 
-// CORS заголовки
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -15,12 +14,10 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Обработка preflight запросов
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  // Проверка токена
   if (!BOT_TOKEN) {
     return new Response(JSON.stringify({ error: 'DISCORD_BOT_TOKEN not configured' }), { 
       status: 500,
@@ -34,93 +31,103 @@ serve(async (req) => {
 
     console.log(`[event-discord] Action: ${action}, Event ID: ${event?.id}`);
 
-    // === ЭМОДЗИ ИГР ===
-    const gameEmojis: Record<string, string> = { 
+    const gameEmojis = { 
       'Among Us': '🚀', 'Шахматы': '♟️', 'Дурак': '🃏', 'Clash Royale': '👑', 
       'Brawl Stars': '⭐', 'Minecraft': '⛏️', 'JackBox': '📦', 'Бункер': '🏚️', 
       'Шпион': '🕵️', 'Codenames': '🔤', 'Alias': '🗣️', 'Gartic Phone': '🎨', 
       'Roblox': '🟢', 'Другие': '🎮'
     };
+    
+    if (!event) {
+      return new Response(JSON.stringify({ error: 'Event data required' }), { 
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
+    
     const emoji = gameEmojis[event.game] || event.game_emoji || '🎮';
     
-    // === НАСТРОЙКИ EMBED ===
-    let userColor = 0x00D4FF; // Default cyan
+    let userColor = 0x00D4FF;
     try {
       if (embedSettings?.color) {
         const c = embedSettings.color.replace('#', '');
         userColor = parseInt(c, 16);
       }
-    } catch { /* fallback to default */ }
+    } catch { /* ignore */ }
 
     const botName = embedSettings?.botName || 'LOLA Events';
     const botAvatar = embedSettings?.botAvatar || 'https://cdn.discordapp.com/icons/1463228311118549124/a_1463228311118549124.png';
     const footer = embedSettings?.footer || '✨ LOLA Server';
     const thumbnail = embedSettings?.thumbnail || 'https://cdn.discordapp.com/icons/1463228311118549124/a_1463228311118549124.png';
 
-    // === СТАТУСЫ ===
-    const statusLabel: Record<string, string> = {
+    const statusLabel = {
       upcoming: '📅 Предстоящий',
       completed: '✅ Завершён', 
       cancelled: '❌ Отменён',
       live: '🔴 Идёт сейчас'
     };
 
-    // === 🔥 ЖЁЛТЫЙ ЖИРНЫЙ ТЕКСТ ДЛЯ ХАЙЛАЙТОВ ===
-    let content: string | null = null;
+    let content = null;
     let finalColor = userColor;
     const timestamp = Math.floor(Date.now() / 1000);
     
     if (highlight === 'cancelled') {
-      // Жёлтый жирный текст при отмене
       content = `### :warning: **<t:${timestamp}:R> — МЕРОПРИЯТИЕ ОТМЕНЕНО!** :warning:`;
-      finalColor = 0xFFD700; // Gold/Yellow
+      finalColor = 0xFFD700;
     } else if (highlight === 'edited') {
-      // Жёлтый жирный текст при редактировании
       content = `### :pencil: **ОБНОВЛЕНО!** <t:${timestamp}:R>`;
-      finalColor = 0xFFD700; // Gold/Yellow
+      finalColor = 0xFFD700;
     } else if (event.status === 'cancelled') {
-      // Красный для отменённых без хайлайта
       finalColor = 0xFF4444;
     }
 
-    // === СОЗДАНИЕ EMBED ===
-    const embed: Record<string, any> = {
-      title: `${emoji} ${event.title}`,
-      description: event.description || '—',
-      color: finalColor,
-      thumbnail: thumbnail ? { url: thumbnail } : undefined,
-      fields: [
+    const createEmbed = (unixTimestamp) => {
+      const fields = [
         { name: '🎮 Игра', value: `\`${event.game}\``, inline: true },
-        { name: '🗓️ Дата', value: `\`${event.date}\``, inline: true },
-        { name: '⏰ Время', value: `\`${event.time}\``, inline: true },
+        { name: '🗓️ Дата и время', value: `<t:${unixTimestamp}:F> (<t:${unixTimestamp}:R>)`, inline: false },
         { name: '👥 Участники', value: `\`${(event.registered_players?.length || 0)}/${event.max_players}\``, inline: true },
         { name: '👤 Ведущий', value: event.host_name || 'Admin', inline: true },
         { name: '📊 Статус', value: statusLabel[event.status] || '📋 Неизвестно', inline: true },
-      ],
-      footer: { text: footer },
-      timestamp: new Date().toISOString(),
-    };
+      ];
 
-    // Ссылка на регистрацию только для активных событий
-    if (event.status !== 'cancelled') {
-      embed.fields.push({ 
-        name: '🔗 Регистрация', 
-        value: '[Нажмите здесь](https://loolaa.netlify.app/events)', 
-        inline: false 
-      });
-    }
+      if (event.status !== 'cancelled') {
+        fields.push({ 
+          name: '🔗 Регистрация', 
+          value: '[Нажмите здесь](https://lola-discord.netlify.app/events)', 
+          inline: false 
+        });
+      }
+
+      return {
+        title: `${emoji} ${event.title}`,
+        description: event.description || '—',
+        color: finalColor,
+        thumbnail: thumbnail ? { url: thumbnail } : undefined,
+        fields: fields,
+        footer: { text: footer },
+        timestamp: new Date().toISOString(),
+      };
+    };
 
     let scheduledEventId = event.discord_scheduled_event_id;
 
-    // ========================================
-    // === ACTION: CREATE ===
-    // ========================================
+    // ACTION: CREATE
     if (action === 'create') {
-      // Создаём Scheduled Event в Discord (опционально)
+      let unixTimestamp = 0;
+      if (event.date && event.time) {
+        const [year, month, day] = event.date.split('-').map(Number);
+        const [hour, minute] = event.time.split(':').map(Number);
+        const utcTimestampMs = Date.UTC(year, month - 1, day, hour - 3, minute);
+        unixTimestamp = Math.floor(utcTimestampMs / 1000);
+      }
+
       if (createDiscordEvent) {
         try {
-          const startDate = new Date(`${event.date}T${event.time}`).toISOString();
-          const endDate = new Date(new Date(startDate).getTime() + 2 * 60 * 60 * 1000).toISOString(); // +2 часа
+          const [y, m, d] = event.date.split('-').map(Number);
+          const [h, min] = event.time.split(':').map(Number);
+          const utcStartMs = Date.UTC(y, m - 1, d, h - 3, min);
+          const startDate = new Date(utcStartMs).toISOString();
+          const endDate = new Date(utcStartMs + 2 * 60 * 60 * 1000).toISOString();
           
           const schRes = await fetch(`${DISCORD_API}/guilds/${GUILD_ID}/scheduled-events`, {
             method: 'POST',
@@ -133,29 +140,27 @@ serve(async (req) => {
               description: event.description || 'Ивент на сайте LOLA',
               scheduled_start_time: startDate,
               scheduled_end_time: endDate,
-              privacy_level: 2, // Guild only
-              entity_type: 3, // External
-              entity_metadata: { location: 'https://loolaa.netlify.app/events' }
+              privacy_level: 2,
+              entity_type: 3,
+              entity_metadata: { location: 'https://lola-discord.netlify.app/events' }
             })
           });
-          
+           
           if (schRes.ok) {
             const schData = await schRes.json();
             scheduledEventId = schData.id;
-            console.log(`[event-discord] Created scheduled event: ${scheduledEventId}`);
           } else {
             const err = await schRes.text();
             console.error(`[event-discord] Scheduled event error: ${schRes.status} ${err}`);
           }
-        } catch (e: any) {
+        } catch (e) {
           console.error('[event-discord] Scheduled event exception:', e.message);
         }
       }
 
-      // Создаём сообщение в канале
-      const payload: Record<string, any> = {
+      const payload = {
         content: rolePing ? `<@&${rolePing}>` : null,
-        embeds: [embed],
+        embeds: [createEmbed(unixTimestamp)],
         username: botName,
         avatar_url: botAvatar,
       };
@@ -168,15 +173,13 @@ serve(async (req) => {
         },
         body: JSON.stringify(payload)
       });
-      
+       
       if (!msgRes.ok) {
         const err = await msgRes.text();
         throw new Error(`Failed to create message: ${msgRes.status} ${err}`);
       }
-      
+       
       const msgData = await msgRes.json();
-      console.log(`[event-discord] Created message: ${msgData.id}`);
-      
       return new Response(JSON.stringify({ 
         success: true, 
         messageId: msgData.id, 
@@ -186,13 +189,19 @@ serve(async (req) => {
       });
     }
 
-    // ========================================
-    // === ACTION: UPDATE ===
-    // ========================================
+    // ACTION: UPDATE
     if (action === 'update' && event.discord_message_id) {
-      const payload: Record<string, any> = {
-        content: content, // 🔥 Жёлтый жирный текст при highlight
-        embeds: [embed],
+      let unixTimestamp = 0;
+      if (event.date && event.time) {
+        const [year, month, day] = event.date.split('-').map(Number);
+        const [hour, minute] = event.time.split(':').map(Number);
+        const utcTimestampMs = Date.UTC(year, month - 1, day, hour - 3, minute);
+        unixTimestamp = Math.floor(utcTimestampMs / 1000);
+      }
+
+      const payload = {
+        content: content,
+        embeds: [createEmbed(unixTimestamp)],
         username: botName,
         avatar_url: botAvatar,
       };
@@ -209,18 +218,17 @@ serve(async (req) => {
       if (!msgRes.ok) {
         const err = await msgRes.text();
         console.error(`[event-discord] Update message error: ${msgRes.status} ${err}`);
-      } else {
-        console.log(`[event-discord] Updated message: ${event.discord_message_id}`);
       }
 
-      // Обновляем Scheduled Event если есть
       if (event.discord_scheduled_event_id) {
         try {
-          const startDate = new Date(`${event.date}T${event.time}`).toISOString();
-          const endDate = new Date(new Date(startDate).getTime() + 2 * 60 * 60 * 1000).toISOString();
-          // Статус: 1=active, 2=completed, 3=canceled, 4=canceled (internal), 5=completed (internal)
+          const [y, m, d] = event.date.split('-').map(Number);
+          const [h, min] = event.time.split(':').map(Number);
+          const utcStartMs = Date.UTC(y, m - 1, d, h - 3, min);
+          const startDate = new Date(utcStartMs).toISOString();
+          const endDate = new Date(utcStartMs + 2 * 60 * 60 * 1000).toISOString();
           const schStatus = event.status === 'cancelled' ? 3 : 1;
-          
+           
           const schRes = await fetch(`${DISCORD_API}/guilds/${GUILD_ID}/scheduled-events/${event.discord_scheduled_event_id}`, {
             method: 'PATCH',
             headers: { 
@@ -235,24 +243,22 @@ serve(async (req) => {
               status: schStatus
             })
           });
-          
+           
           if (!schRes.ok) {
             const err = await schRes.text();
             console.error(`[event-discord] Update scheduled event error: ${schRes.status} ${err}`);
           }
-        } catch (e: any) {
+        } catch (e) {
           console.error('[event-discord] Update scheduled event exception:', e.message);
         }
       }
-      
+       
       return new Response(JSON.stringify({ success: true, updated: true }), { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
 
-    // ========================================
-    // === ACTION: DELETE (message) ===
-    // ========================================
+    // ACTION: DELETE (message)
     if (action === 'delete' && event.discord_message_id) {
       const delRes = await fetch(`${DISCORD_API}/channels/${EVENTS_CHANNEL_ID}/messages/${event.discord_message_id}`, {
         method: 'DELETE',
@@ -262,18 +268,14 @@ serve(async (req) => {
       if (!delRes.ok && delRes.status !== 404) {
         const err = await delRes.text();
         console.error(`[event-discord] Delete message error: ${delRes.status} ${err}`);
-      } else {
-        console.log(`[event-discord] Deleted message: ${event.discord_message_id}`);
       }
-      
+       
       return new Response(JSON.stringify({ success: true, deleted: true }), { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
 
-    // ========================================
-    // === ACTION: DELETE_SCHEDULED ===
-    // ========================================
+    // ACTION: DELETE_SCHEDULED
     if (action === 'delete_scheduled' && event.discord_scheduled_event_id) {
       const delRes = await fetch(`${DISCORD_API}/guilds/${GUILD_ID}/scheduled-events/${event.discord_scheduled_event_id}`, {
         method: 'DELETE',
@@ -283,24 +285,19 @@ serve(async (req) => {
       if (!delRes.ok && delRes.status !== 404) {
         const err = await delRes.text();
         console.error(`[event-discord] Delete scheduled event error: ${delRes.status} ${err}`);
-      } else {
-        console.log(`[event-discord] Deleted scheduled event: ${event.discord_scheduled_event_id}`);
       }
-      
+       
       return new Response(JSON.stringify({ success: true, deleted: true }), { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       });
     }
 
-    // ========================================
-    // === UNKNOWN ACTION ===
-    // ========================================
     return new Response(JSON.stringify({ error: `Unknown action: ${action}` }), { 
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('[event-discord] Critical error:', error.message);
     return new Response(JSON.stringify({ error: error.message }), { 
       status: 500,
