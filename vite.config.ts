@@ -28,7 +28,6 @@ export default defineConfig({
   build: {
     minify: 'esbuild',
     target: 'es2019',
-    cssCodeSplit: true,
     sourcemap: false,
     rollupOptions: {
       output: {
