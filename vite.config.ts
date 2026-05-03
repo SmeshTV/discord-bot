@@ -32,10 +32,16 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'supabase': ['@supabase/supabase-js'],
-          'ui': ['framer-motion', 'lucide-react'],
+        manualChunks(id) {
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            return 'react-vendor';
+          }
+          if (id.includes('@supabase')) {
+            return 'supabase';
+          }
+          if (id.includes('framer-motion') || id.includes('lucide-react')) {
+            return 'ui';
+          }
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
