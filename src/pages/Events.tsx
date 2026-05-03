@@ -314,13 +314,15 @@ const EventsPage = () => {
   const getEventStatus = (event: Event): { status: 'upcoming' | 'live' | 'completed' | 'cancelled', label: string, color: string } => {
     if (event.status === 'cancelled') return { status: 'cancelled', label: 'Отменён', color: 'bg-red-500/20 text-red-400' };
 
+    const now = new Date(); // Локальное время (для сравнения дат)
+    const nowUtc = now.getTime(); // UTC timestamp в миллисекундах
+
     // Время в БД хранится как MSK. Конвертируем в UTC для сравнения с текущим временем.
     const [year, month, day] = event.date.split('-').map(Number);
     const [hour, minute] = (event.time || '00:00').split(':').map(Number);
     // Date.UTC дает время в UTC. Вычитаем 3 часа, так как в БД время записано как MSK (UTC+3)
     const eventUtcTimestamp = Date.UTC(year, month - 1, day, hour - 3, minute);
     
-    const nowUtc = Date.now(); // Текущее время в UTC (миллисекунды)
     const diffMs = eventUtcTimestamp - nowUtc;
     const diffMinutes = diffMs / (1000 * 60);
     const diffHours = diffMs / (1000 * 60 * 60);
@@ -339,7 +341,7 @@ const EventsPage = () => {
 
     const todayStr = now.toISOString().split('T')[0];
     if (event.date === todayStr) {
-      return { status: 'upcoming', label: '📅 Сьогодня', color: 'bg-blue-500/20 text-blue-400' };
+      return { status: 'upcoming', label: '📅 Сьогодні', color: 'bg-blue-500/20 text-blue-400' };
     }
 
     const tomorrow = new Date(now);
