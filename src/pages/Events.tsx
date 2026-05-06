@@ -7,7 +7,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 
-// Discord Markdown â†’ HTML ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚ÐµÑ€
+// Discord Markdown → HTML converter
 const renderDiscordMarkdown = (text: string): string => {
   if (!text) return '';
   return text
@@ -19,7 +19,7 @@ const renderDiscordMarkdown = (text: string): string => {
     .replace(/__(.+?)__/g, '<u>$1</u>')
     .replace(/~~(.+?)~~/g, '<s>$1</s>')
     .replace(/\|\|(.+?)\|\|/g, '<span class="bg-gray-600 text-transparent hover:text-white rounded px-1 cursor-pointer transition-colors">$1</span>')
-    .replace(/^[\s]*[-â€¢]\s+(.+)$/gm, '<li class="ml-4">$1</li>')
+    .replace(/^[\s]*[-•]\s+(.+)$/gm, '<li class="ml-4">$1</li>')
     .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold mt-2">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-2">$1</h2>')
     .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold mt-2">$1</h1>');
@@ -33,7 +33,7 @@ const formatMSK = (dateStr: string, timeStr: string): string => {
   const month = parts[1];
   const hour = timeParts[0];
   const minute = timeParts[1];
-  const months = ['ÑÐ½Ð²', 'Ñ„ÐµÐ²', 'Ð¼Ð°Ñ€', 'Ð°Ð¿Ñ€', 'Ð¼Ð°Ñ', 'Ð¸ÑŽÐ½', 'Ð¸ÑŽÐ»', 'Ð°Ð²Ð³', 'ÑÐµÐ½', 'Ð¾ÐºÑ‚', 'Ð½Ð¾Ñ', 'Ð´ÐµÐº'];
+  const months = ['Yanv', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
   return day + ' ' + months[month - 1] + ', ' + String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
 };
 
@@ -73,19 +73,19 @@ interface EventReview {
 }
 
 const gameOptions = [
-  { name: 'Among Us', emoji: 'ðŸš€' },
-  { name: 'Ð¨Ð°Ñ…Ð¼Ð°Ñ‚Ñ‹', emoji: 'â™Ÿï¸' },
-  { name: 'Ð”ÑƒÑ€Ð°Ðº', emoji: 'ðŸƒ' },
-  { name: 'Clash Royale', emoji: 'ðŸ‘‘' },
-  { name: 'Brawl Stars', emoji: 'â­' },
-  { name: 'Minecraft', emoji: 'â›ï¸' },
-  { name: 'JackBox', emoji: 'ðŸ“¦' },
-  { name: 'Ð‘ÑƒÐ½ÐºÐµÑ€', emoji: 'ðŸšï¸' },
-  { name: 'Ð¨Ð¿Ð¸Ð¾Ð½', emoji: 'ðŸ•µï¸' },
-  { name: 'Codenames', emoji: 'ðŸ”¤' },
-  { name: 'Alias', emoji: 'ðŸ—£ï¸' },
-  { name: 'Gartic Phone', emoji: 'ðŸŽ¨' },
-  { name: 'Roblox', emoji: 'ðŸŸ¢' },
+  { name: 'Among Us', emoji: '🚀' },
+  { name: 'Shakhmaty', emoji: '♟️' },
+  { name: 'Durak', emoji: '🃏' },
+  { name: 'Clash Royale', emoji: '👑' },
+  { name: 'Brawl Stars', emoji: '⭐' },
+  { name: 'Minecraft', emoji: '⛏️' },
+  { name: 'JackBox', emoji: '📦' },
+  { name: 'Bunker', emoji: '🏚️' },
+  { name: 'Shpion', emoji: '🕵️' },
+  { name: 'Codenames', emoji: '🔤' },
+  { name: 'Alias', emoji: '🗣️' },
+  { name: 'Gartic Phone', emoji: '🎨' },
+  { name: 'Roblox', emoji: '🟢' },
 ];
 
 const syncEventToDiscord = async (event: Event) => {
@@ -97,294 +97,170 @@ const syncEventToDiscord = async (event: Event) => {
         event: event,
         embedSettings: {
           botName: 'LOLA Events',
-          footer: 'âœ¨ LOLA Server',
-          color: '#00D4FF'
+          footer: '✨ LOLA Server',
         }
       }
     });
-  } catch (e) {
-    console.error('Discord sync error:', e);
+  } catch {}
+};
+
+const getEventStatus = (event: Event) => {
+  const now = new Date();
+  const eventDateTime = new Date(`${event.date}T${event.time}`);
+  const diffHours = (eventDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  
+  if (eventDateTime < now) {
+    return { status: 'completed', label: 'Zaversheno', color: 'bg-gray-500/20 text-gray-400 border border-gray-500/30' };
+  } else if (diffHours <= 0.5) {
+    return { status: 'live', label: 'V ETFRE', color: 'bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse' };
+  } else {
+    return { status: 'upcoming', label: 'Skoro', color: 'bg-green-500/20 text-green-400 border border-green-500/30' };
   }
 };
 
-const PageHeader = ({ title, subtitle, icon }: { title: string; subtitle?: string; icon?: React.ReactNode }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: -20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="flex items-center gap-4 mb-8"
-  >
-    {icon && (
-      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-        {icon}
-      </div>
-    )}
-    <div>
-      <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-        {title}
-      </h1>
-      {subtitle && (
-        <p className="text-gray-400 text-sm">{subtitle}</p>
-      )}
-    </div>
-  </motion.div>
-);
+const canRegisterForEvent = (event: Event) => {
+  const now = new Date();
+  const eventDateTime = new Date(`${event.date}T${event.time}`);
+  
+  if (eventDateTime < now) {
+    return { canRegister: false, isExclusive: false, message: 'Ivent zavershen' };
+  }
+  if (event.registered_players.length >= event.max_players) {
+    return { canRegister: false, isExclusive: false, message: 'Mest net' };
+  }
+  if (event.exclusive_until) {
+    const exclusiveUntil = new Date(event.exclusive_until);
+    if (now < exclusiveUntil) {
+      return { 
+        canRegister: false, 
+        isExclusive: true, 
+        message: `Exklyuziv do ${new Date(event.exclusive_until).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}` 
+      };
+    }
+  }
+  return { canRegister: true, isExclusive: false, message: '' };
+};
 
 const EventsPage = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
-  const [eventReviews, setEventReviews] = useState<{ [key: string]: EventReview[] }>({});
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed'>('all');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [eventReviews, setEventReviews] = useState<{ [key: string]: EventReview[] }>({});
   const [reviewText, setReviewText] = useState('');
-  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [userReservations, setUserReservations] = useState<{ expires_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userReservations, setUserReservations] = useState<{id: string, expires_at: string}[]>([]);
+
+  const stats = {
+    total: events.length,
+    upcoming: events.filter(e => new Date(`${e.date}T${e.time}`) > new Date()).length,
+    completed: events.filter(e => new Date(`${e.date}T${e.time}`) < new Date()).length,
+    totalPlayers: events.reduce((sum, e) => sum + e.registered_players.length, 0),
+  };
+
+  const filteredEvents = events.filter(e => {
+    if (filter === 'upcoming') return new Date(`${e.date}T${e.time}`) > new Date();
+    if (filter === 'completed') return new Date(`${e.date}T${e.time}`) < new Date();
+    return true;
+  });
 
   useEffect(() => {
-    loadEvents();
-    loadUserReservations();
-
-    const channel = supabase
-      .channel('events-public-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'events' },
-        () => {
-          loadEvents();
-        }
-      )
-      .subscribe();
-
-    const interval = setInterval(() => {
-      setEvents(prev => [...prev]);
-    }, 60000);
-
-    return () => {
-      supabase.removeChannel(channel);
-      clearInterval(interval);
-    };
-  }, []);
-
-  const loadUserReservations = async () => {
-    if (!user) return;
-    const { data, error } = await supabase
-      .from('shop_purchases')
-      .select('id, expires_at, purchased_at')
-      .eq('user_id', user.id)
-      .eq('item_id', 'tournament-reserve')
-      .or('expires_at.is.null,expires_at.gt.' + new Date().toISOString())
-      .limit(1);
-
-    if (error) {
-      console.error('Error loading reservations:', error);
-      return;
-    }
-
-    if (data && data.length > 0) {
-      const reservation = data[0];
-      const expiresAt = reservation.expires_at 
-        ? new Date(reservation.expires_at) 
-        : new Date(reservation.purchased_at.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const loadEvents = async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from('events')
+        .select('*')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+      setEvents(data || []);
       
-      setUserReservations([{
-        id: reservation.id,
-        expires_at: expiresAt.toISOString()
-      }]);
-    } else {
-      setUserReservations([]);
-    }
-  };
-
-  const loadEvents = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) console.error('Events load error:', error);
-    setEvents(data || []);
-
-    if (data && data.length > 0) {
-      const { data: reviews } = await supabase.from('event_reviews').select('*');
-      if (reviews) {
-        const byEvent: { [key: string]: EventReview[] } = {};
-        reviews.forEach(r => {
-          if (!byEvent[r.event_id]) byEvent[r.event_id] = [];
-          byEvent[r.event_id].push(r);
-        });
-        setEventReviews(byEvent);
+      if (data && data.length > 0) {
+        const eventIds = data.map(e => e.id);
+        const { data: reviewsData } = await supabase
+          .from('event_reviews')
+          .select('*')
+          .in('event_id', eventIds);
+        if (reviewsData) {
+          const grouped: { [key: string]: EventReview[] } = {};
+          for (const review of reviewsData) {
+            if (!grouped[review.event_id]) grouped[review.event_id] = [];
+            grouped[review.event_id].push(review);
+          }
+          setEventReviews(grouped);
+        }
       }
-    }
 
-    setLoading(false);
-  };
-
-  const canRegisterForEvent = (event: Event): { canRegister: boolean; isExclusive: boolean; message?: string } => {
-    if (!user) return { canRegister: false, isExclusive: false };
-
-    if (!event.exclusive_until) {
-      return { canRegister: true, isExclusive: false };
-    }
-
-    const exclusiveUntil = new Date(event.exclusive_until);
-    const now = new Date();
-
-    const hasReservation = userReservations.length > 0;
-
-    if (now < exclusiveUntil) {
-      if (hasReservation) {
-        return { canRegister: true, isExclusive: true, message: 'ðŸ† Ð Ð°Ð½Ð½ÑÑ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ (Ñ€ÐµÐ·ÐµÑ€Ð²)' };
-      } else {
-        return {
-          canRegister: false,
-          isExclusive: true,
-          message: 'â³ Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ Ð²Ñ–Ð´ÐºÑ€Ð¾Ñ”Ñ‚ÑŒÑÑ ' + exclusiveUntil.toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
-        };
+      if (user) {
+        const { data: resData } = await supabase
+          .from('shop_purchases')
+          .select('id, expires_at, purchased_at')
+          .eq('user_id', user.id)
+          .eq('item_id', 'tournament-reserve')
+          .or('expires_at.is.null,expires_at.gt.' + new Date().toISOString())
+          .limit(1);
+        if (resData && resData.length > 0) {
+          const res = resData[0];
+          const expiresAt = res.expires_at 
+            ? new Date(res.expires_at) 
+            : new Date(new Date(res.purchased_at).getTime() + 30 * 24 * 60 * 60 * 1000);
+          setUserReservations([{ expires_at: expiresAt.toISOString() }]);
+        }
       }
-    }
 
-    return { canRegister: true, isExclusive: false };
-  };
+      setLoading(false);
+    };
+    loadEvents();
+  }, [user]);
 
   const handleRegister = async (eventId: string) => {
     if (!user) return;
-    const event = events.find(e => e.id === eventId);
-    if (!event || event.registered_players.includes(user.id)) return;
-
-    const newPlayers = [...event.registered_players, user.id];
     const { error } = await supabase
       .from('events')
-      .update({ registered_players: newPlayers })
+      .update({ registered_players: [...events.find(e => e.id === eventId)!.registered_players, user.id] })
       .eq('id', eventId);
-
-    if (error) return;
-    setEvents(prev => prev.map(e =>
-      e.id === eventId ? { ...e, registered_players: newPlayers } : e
-    ));
-
-    syncEventToDiscord({ ...event, registered_players: newPlayers });
+    if (!error) {
+      setEvents(events.map(e => e.id === eventId ? { ...e, registered_players: [...e.registered_players, user.id] } : e));
+      syncEventToDiscord(events.find(e => e.id === eventId)!);
+    }
   };
 
   const handleUnregister = async (eventId: string) => {
     if (!user) return;
-    const event = events.find(e => e.id === eventId);
-    if (!event) return;
-
-    const newPlayers = event.registered_players.filter((id: string) => id !== user.id);
     const { error } = await supabase
       .from('events')
-      .update({ registered_players: newPlayers })
+      .update({ registered_players: events.find(e => e.id === eventId)!.registered_players.filter(id => id !== user.id) })
       .eq('id', eventId);
-
-    if (error) return;
-    setEvents(prev => prev.map(e =>
-      e.id === eventId ? { ...e, registered_players: newPlayers } : e
-    ));
-
-    syncEventToDiscord({ ...event, registered_players: newPlayers });
+    if (!error) {
+      setEvents(events.map(e => e.id === eventId ? { ...e, registered_players: e.registered_players.filter(id => id !== user.id) } : e));
+      syncEventToDiscord(events.find(e => e.id === eventId)!);
+    }
   };
 
   const handleSubmitReview = async () => {
     if (!user || !selectedEvent || !reviewText.trim()) return;
-
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('event_reviews')
-      .insert([{
-        event_id: selectedEvent.id,
-        user_id: user.id,
-        username: user.username,
-        rating: reviewRating,
-        text: reviewText.trim(),
-      }])
+      .insert([{ event_id: selectedEvent.id, user_id: user.id, username: user.username, rating: reviewRating, text: reviewText }])
       .select()
       .single();
-
-    if (error) return;
-
-    setEventReviews(prev => ({
-      ...prev,
-      [selectedEvent.id]: [...(prev[selectedEvent.id] || []), data],
-    }));
-    setSelectedEvent({ ...selectedEvent });
-    setReviewText('');
-    setReviewRating(5);
-  };
-
-  const getEventStatus = (event: Event): { status: 'upcoming' | 'live' | 'completed' | 'cancelled', label: string, color: string } => {
-    if (event.status === 'cancelled') return { status: 'cancelled', label: 'ÐžÑ‚Ð¼ÐµÐ½Ñ‘Ð½', color: 'bg-red-500/20 text-red-400' };
-
-    const now = new Date(); // Ð›Ð¾ÐºÐ°Ð»ÑŒÐ½Ð¾Ðµ Ð²Ñ€ÐµÐ¼Ñ (Ð´Ð»Ñ ÑÑ€Ð°Ð²Ð½ÐµÐ½Ð¸Ñ Ð´Ð°Ñ‚)
-    const nowUtc = now.getTime(); // UTC timestamp Ð² Ð¼Ð¸Ð»Ð»Ð¸ÑÐµÐºÑƒÐ½Ð´Ð°Ñ…
-
-    // Ð’Ñ€ÐµÐ¼Ñ Ð² Ð‘Ð” Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑÑ ÐºÐ°Ðº MSK. ÐšÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð¸Ñ€ÑƒÐµÐ¼ Ð² UTC Ð´Ð»Ñ ÑÑ€Ð°Ð²Ð½ÐµÐ½Ð¸Ñ Ñ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¼ Ð²Ñ€ÐµÐ¼ÐµÐ½ÐµÐ¼.
-    const [year, month, day] = event.date.split('-').map(Number);
-    const [hour, minute] = (event.time || '00:00').split(':').map(Number);
-    // Date.UTC Ð´Ð°ÐµÑ‚ Ð²Ñ€ÐµÐ¼Ñ Ð² UTC. Ð’Ñ‹Ñ‡Ð¸Ñ‚Ð°ÐµÐ¼ 3 Ñ‡Ð°ÑÐ°, Ñ‚Ð°Ðº ÐºÐ°Ðº Ð² Ð‘Ð” Ð²Ñ€ÐµÐ¼Ñ Ð·Ð°Ð¿Ð¸ÑÐ°Ð½Ð¾ ÐºÐ°Ðº MSK (UTC+3)
-    const eventUtcTimestamp = Date.UTC(year, month - 1, day, hour - 3, minute);
-    
-    const diffMs = eventUtcTimestamp - nowUtc;
-    const diffMinutes = diffMs / (1000 * 60);
-    const diffHours = diffMs / (1000 * 60 * 60);
-
-    if (diffHours < -2) {
-      return { status: 'completed', label: 'Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¾', color: 'bg-gray-500/20 text-gray-400' };
+    if (data) {
+      setEventReviews({
+        ...eventReviews,
+        [selectedEvent.id]: [...(eventReviews[selectedEvent.id] || []), data],
+      });
+      setReviewText('');
+      setReviewRating(0);
     }
-
-    if (diffMinutes <= 0 && diffHours >= -2) {
-      return { status: 'live', label: 'ðŸ”´ Ð˜Ð´Ñ‘Ñ‚ ÑÐµÐ¹Ñ‡Ð°Ñ', color: 'bg-green-500/20 text-green-400 animate-pulse' };
-    }
-
-    if (diffMinutes > 0 && diffMinutes <= 60) {
-      return { status: 'upcoming', label: 'âš¡ Ð¡ÐºÐ¾Ñ€Ð¾ Ð¿Ð¾Ñ‡Ð½ÐµÑ‚ÑŒÑÑ', color: 'bg-orange-500/20 text-orange-400' };
-    }
-
-    const todayStr = now.toISOString().split('T')[0];
-    if (event.date === todayStr) {
-      return { status: 'upcoming', label: 'ðŸ“… Ð¡ÑŒÐ¾Ð³Ð¾Ð´Ð½Ñ–', color: 'bg-blue-500/20 text-blue-400' };
-    }
-
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    if (event.date === tomorrowStr) {
-      return { status: 'upcoming', label: 'ðŸ“… Ð—Ð°Ð²Ñ‚Ñ€Ð°', color: 'bg-blue-500/20 text-blue-400' };
-    }
-
-    if (diffMinutes > 60) {
-      return { status: 'upcoming', label: 'Ð¡ÐºÐ¾Ñ€Ð¾', color: 'bg-blue-500/20 text-blue-400' };
-    }
-
-    return { status: 'completed', label: 'Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¾', color: 'bg-gray-500/20 text-gray-400' };
-  };
-
-    const filteredEvents = events.filter(e => {
-    const dynamicStatus = getEventStatus(e).status;
-    if (filter === 'all') return true;
-    return dynamicStatus === filter;
-  }).sort((a, b) => {
-    // Ð¡Ð¾Ñ€Ñ‚Ð¸Ñ€ÑƒÐµÐ¼ Ð¿Ð¾ UTC Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ (MSK Ð¼Ð¸Ð½ÑƒÑ 3 Ñ‡Ð°ÑÐ°)
-    const [yA, mA, dA] = a.date.split('-').map(Number);
-    const [hA, minA] = a.time.split(':').map(Number);
-    const [yB, mB, dB] = b.date.split('-').map(Number);
-    const [hB, minB] = b.time.split(':').map(Number);
-    
-    const utcA = Date.UTC(yA, mA - 1, dA, hA - 3, minA);
-    const utcB = Date.UTC(yB, mB - 1, dB, hB - 3, minB);
-    return utcB - utcA; // Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð½Ð¾Ð²Ñ‹Ðµ
-  });
-
-  const stats = {
-    total: events.length,
-    upcoming: events.filter(e => getEventStatus(e).status === 'upcoming' || getEventStatus(e).status === 'live').length,
-    completed: events.filter(e => getEventStatus(e).status === 'completed').length,
-    totalPlayers: events.reduce((sum, e) => sum + e.registered_players.length, 0),
   };
 
   if (loading) {
     return (
-      <div className="pt-24 pb-20 px-4 flex items-center justify-center min-h-screen">
-        <div className="text-gray-400">Ð—Ð°Ð²Ð°Ð½Ñ‚Ð°Ð¶ÐµÐ½Ð½Ñ Ð¿Ð¾Ð´Ñ–Ð¹...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-mushroom-neon border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Zagruzka...</p>
+        </div>
       </div>
     );
   }
@@ -396,10 +272,10 @@ const EventsPage = () => {
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
         </div>
-        
+
         <PageHeader 
-          title="ÐŸÐ¾Ð´Ñ–Ñ—" 
-          subtitle="Ð Ð¾Ð·ÐºÐ»Ð°Ð´ Ð¿Ð¾Ð´Ñ–Ð¹ Ð½Ð° ÑÐµÑ€Ð²ÐµÑ€Ñ– LOLA"
+          title="Iventy" 
+          subtitle="Rozklad podiy na serveri LOLA"
           icon={<CalendarDays className="w-7 h-7 text-white" />}
         />
 
@@ -414,9 +290,9 @@ const EventsPage = () => {
               <div className="flex items-center gap-3">
                 <Trophy className="text-yellow-400" size={24} />
                 <div>
-                  <p className="font-bold text-yellow-400">ðŸ† Ð£ Ñ‚ÐµÐ±Ðµ Ñ” Ñ€ÐµÐ·ÐµÑ€Ð² Ð½Ð° Ñ‚ÑƒÑ€Ð½Ñ–Ñ€!</p>
+                  <p className="font-bold text-yellow-400">🏆 U tebya est rezerv na turnir!</p>
                   <p className="text-gray-400 text-sm">
-                    Ð”Ñ–Ñ” Ð´Ð¾: {new Date(userReservations[0].expires_at).toLocaleString('ru-RU', { 
+                    Do: {new Date(userReservations[0].expires_at).toLocaleString('ru-RU', { 
                       day: 'numeric', 
                       month: 'long', 
                       hour: '2-digit', 
@@ -430,14 +306,14 @@ const EventsPage = () => {
         )}
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-mushroom-neon">{stats.total}</div><div className="text-gray-400 text-sm">Ð’ÑÑŒÐ¾Ð³Ð¾</div></div>
-          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-blue-400">{stats.upcoming}</div><div className="text-gray-400 text-sm">ÐŸÑ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‰Ñ–</div></div>
-          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-green-400">{stats.completed}</div><div className="text-gray-400 text-sm">Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ñ–</div></div>
-          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-yellow-400">{stats.totalPlayers}</div><div className="text-gray-400 text-sm">Ð£Ñ‡Ð°ÑÐ½Ð¸ÐºÑ–Ð²</div></div>
+          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-mushroom-neon">{stats.total}</div><div className="text-gray-400 text-sm">Vsego</div></div>
+          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-blue-400">{stats.upcoming}</div><div className="text-gray-400 text-sm">Predstoyashchie</div></div>
+          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-green-400">{stats.completed}</div><div className="text-gray-400 text-sm">Zavershennye</div></div>
+          <div className="glass-card p-4 text-center"><div className="text-2xl font-bold text-yellow-400">{stats.totalPlayers}</div><div className="text-gray-400 text-sm">Uchastnikov</div></div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex gap-2 mb-8">
-          {[{ value: 'all', label: 'Ð’ÑÑ–' }, { value: 'upcoming', label: 'ÐŸÑ€ÐµÐ´ÑÑ‚Ð¾ÑÑ‡Ñ–' }, { value: 'completed', label: 'Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ñ–' }].map(opt => (
+          {[{ value: 'all', label: 'Vse' }, { value: 'upcoming', label: 'Predstoyashchie' }, { value: 'completed', label: 'Zavershennye' }].map(opt => (
             <button key={opt.value} onClick={() => setFilter(opt.value as typeof filter)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filter === opt.value ? 'bg-mushroom-neon/20 text-mushroom-neon border border-mushroom-neon/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'}`}>
               {opt.label}
@@ -450,7 +326,7 @@ const EventsPage = () => {
             {filteredEvents.length > 0 ? filteredEvents.map((event, index) => {
               const isRegistered = user && event.registered_players.includes(user.id);
               const game = gameOptions.find(g => g.name === event.game);
-              const emoji = game?.emoji || event.game_emoji || 'ðŸŽ®';
+              const emoji = game?.emoji || event.game_emoji || '🎮';
               const reviews = eventReviews[event.id] || [];
               const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
               const dynamicStatus = getEventStatus(event);
@@ -472,7 +348,7 @@ const EventsPage = () => {
                             <span className="flex items-center gap-1"><Clock size={12} /> {formatMSK(event.date, event.time).split(',')[1].trim()}</span>
                             <span className="flex items-center gap-1"><Users size={12} />{event.registered_players.length}/{event.max_players}</span>
                             <span className="flex items-center gap-1"><Gamepad2 size={12} />{event.game}</span>
-                            <span>Ð’ÐµÐ´ÑƒÑ‡Ð¸Ð¹: {event.host_name}</span>
+                            <span>Vedushchiy: {event.host_name}</span>
                           </div>
                         </div>
                       </div>
@@ -501,7 +377,7 @@ const EventsPage = () => {
                               onClick={() => handleUnregister(event.id)}
                               className="w-full px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-sm transition-all border border-red-500/20"
                             >
-                              Ð¡ÐºÐ°ÑÑƒÐ²Ð°Ñ‚Ð¸ Ñ€ÐµÑ”ÑÑ‚Ñ€Ð°Ñ†Ñ–ÑŽ
+                              Skasovat reestratsiyu
                             </button>
                           );
                         }
@@ -510,10 +386,10 @@ const EventsPage = () => {
                           return (
                             <div className="text-center">
                               <div className="px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-                                <div className="text-sm text-yellow-400 font-medium">ðŸ† Ð Ð°Ð½Ð½ÑÑ Ñ€ÐµÑ”ÑÑ‚Ñ€Ð°Ñ†Ñ–Ñ</div>
+                                <div className="text-sm text-yellow-400 font-medium">🏆 Rannyaya reestratsiya</div>
                                 <div className="text-xs text-gray-400 mt-1">{message}</div>
                                 <a href="/shop" className="inline-block mt-2 text-xs text-mushroom-neon hover:underline">
-                                  ÐšÑƒÐ¿Ð¸Ñ‚Ð¸ Ñ€ÐµÐ·ÐµÑ€Ð² Ð½Ð° Ñ‚ÑƒÑ€Ð½Ñ–Ñ€ â†’
+                                  Kupit rezerv na turnir →
                                 </a>
                               </div>
                             </div>
@@ -528,7 +404,7 @@ const EventsPage = () => {
                             }`}
                           >
                             <Users size={14} />
-                            {isExclusive ? 'ðŸ† Ð£Ñ‡Ð°ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ (Ñ€ÐµÐ·ÐµÑ€Ð²)' : 'Ð£Ñ‡Ð°ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ'}
+                            {isExclusive ? '🏆 Uchastvovat (rezerv)' : 'Uchastvovat'}
                           </button>
                         );
                       })()}
@@ -539,9 +415,9 @@ const EventsPage = () => {
             }) : (
               <div className="text-center py-16">
                 <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
-                <p className="text-gray-400 text-lg mb-2">ÐÐµÐ¼Ð°Ñ” Ð¿Ð¾Ð´Ñ–Ð¹</p>
-                <p className="text-gray-500 text-sm">Ð¡Ñ‚ÐµÐºÐ½Ð¸ Ð·Ð° Ð°Ð½Ð¾Ð½ÑÐ°Ð¼Ð¸ Ð² Discord!</p>
-                <a href="https://discord.gg/lolaamongus" target="_blank" rel="noopener noreferrer" className="btn-discord inline-flex items-center gap-2 mt-6"><ExternalLink size={16} /> Discord ÑÐµÑ€Ð²ÐµÑ€</a>
+                <p className="text-gray-400 text-lg mb-2">Net podiy</p>
+                <p className="text-gray-500 text-sm">Sledi za anonsami v Discord!</p>
+                <a href="https://discord.gg/lolaamongus" target="_blank" rel="noopener noreferrer" className="btn-discord inline-flex items-center gap-2 mt-6"><ExternalLink size={16} /> Discord server</a>
               </div>
             )}
           </motion.div>
@@ -552,7 +428,7 @@ const EventsPage = () => {
             const modalStatus = getEventStatus(selectedEvent);
             return (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedEvent(null)}>
-              <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} onClick={e => e.stopPropagation()} className="glass-card max-w-2xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
+              <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} onClick={e => e.stopPropagation()} className="glass-card max-w-6xl w-full p-8 relative max-h-[50vh] overflow-y-auto">
                 <button onClick={() => setSelectedEvent(null)} className="absolute top-4 right-4 p-2 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white"><ChevronDown size={20} className="rotate-90" /></button>
                 
                 <span className="text-5xl mb-4 block">{gameOptions.find(g => g.name === selectedEvent.game)?.emoji || selectedEvent.game_emoji}</span>
@@ -568,15 +444,15 @@ const EventsPage = () => {
                 <p className="text-gray-300 mb-6 leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderDiscordMarkdown(selectedEvent.description) }} />
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Calendar size={14} />Ð”Ð°Ñ‚Ð°</div><div className="font-bold">{selectedEvent.date}</div></div>
-                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Clock size={14} />Ð§Ð°Ñ</div><div className="font-bold">{selectedEvent.time}</div></div>
-                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Users size={14} />Ð£Ñ‡Ð°ÑÐ½Ð¸ÐºÐ¸</div><div className="font-bold">{selectedEvent.registered_players.length}/{selectedEvent.max_players}</div></div>
-                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1">Ð’ÐµÐ´ÑƒÑ‡Ð¸Ð¹</div><div className="font-bold">{selectedEvent.host_name}</div></div>
+                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Calendar size={14} />Data</div><div className="font-bold">{selectedEvent.date}</div></div>
+                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Clock size={14} />Chas</div><div className="font-bold">{selectedEvent.time}</div></div>
+                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1"><Users size={14} />Uchastniki</div><div className="font-bold">{selectedEvent.registered_players.length}/{selectedEvent.max_players}</div></div>
+                  <div className="p-3 bg-white/5 rounded-xl"><div className="flex items-center gap-2 text-sm text-gray-400 mb-1">Vedushchiy</div><div className="font-bold">{selectedEvent.host_name}</div></div>
                 </div>
 
                 {(eventReviews[selectedEvent.id] || []).length > 0 && (
                   <div className="mb-6">
-                    <h4 className="font-bold mb-3 flex items-center gap-2"><Star size={16} className="text-yellow-400" /> Ð’Ñ–Ð´Ð³ÑƒÐºÐ¸ ({eventReviews[selectedEvent.id]?.length || 0})</h4>
+                    <h4 className="font-bold mb-3 flex items-center gap-2"><Star size={16} className="text-yellow-400" /> Otzyvy ({eventReviews[selectedEvent.id]?.length || 0})</h4>
                     <div className="space-y-3">
                       {eventReviews[selectedEvent.id]?.map(review => (
                         <div key={review.id} className="p-3 bg-white/5 rounded-xl">
@@ -593,10 +469,10 @@ const EventsPage = () => {
 
                 {modalStatus.status === 'completed' && user && (
                   <div className="p-4 bg-white/5 rounded-xl mb-6">
-                    <h4 className="font-bold mb-3 text-sm">Ð—Ð°Ð»Ð¸ÑˆÐ¸Ñ‚Ð¸ Ð²Ñ–Ð´Ð³ÑƒÐº Ð¿Ñ€Ð¾ Ñ–Ð²ÐµÐ½Ñ‚</h4>
+                    <h4 className="font-bold mb-3 text-sm">Ostavit otzyv pro ivent</h4>
                     <div className="flex gap-1 mb-3">{[1,2,3,4,5].map(star => (<button key={star} onClick={() => setReviewRating(star)}><Star size={24} className={star <= reviewRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'} /></button>))}</div>
-                    <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Ð¯Ðº Ð¿Ñ€Ð¾Ð¹ÑˆÐ¾Ð² Ñ–Ð²ÐµÐ½Ñ‚?" rows={2} maxLength={300} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-mushroom-neon focus:outline-none resize-none text-white placeholder-gray-500" />
-                    <button onClick={handleSubmitReview} disabled={!reviewText.trim()} className="mt-2 btn-primary text-sm w-full disabled:opacity-50">Ð’Ñ–Ð´Ð¿Ñ€Ð°Ð²Ð¸Ñ‚Ð¸ Ð²Ñ–Ð´Ð³ÑƒÐº</button>
+                    <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Kak proshol ivent?" rows={2} maxLength={300} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:border-mushroom-neon focus:outline-none resize-none text-white placeholder-gray-500" />
+                    <button onClick={handleSubmitReview} disabled={!reviewText.trim()} className="mt-2 btn-primary text-sm w-full disabled:opacity-50">Otpravit otzyv</button>
                   </div>
                 )}
 
@@ -606,47 +482,30 @@ const EventsPage = () => {
 
                   if (isRegistered) {
                     return (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleUnregister(selectedEvent.id)}
-                          className="flex-1 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-sm font-medium transition-all border border-red-500/20"
-                        >
-                          Ð¡ÐºÐ°ÑÑƒÐ²Ð°Ñ‚Ð¸ Ñ€ÐµÑ”ÑÑ‚Ñ€Ð°Ñ†Ñ–ÑŽ
-                        </button>
-                      </div>
-                    );
-                  }
-
-                  if (!canRegister && isExclusive) {
-                    return (
-                      <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-center">
-                        <div className="text-lg mb-2">ðŸ†</div>
-                        <div className="text-sm text-yellow-400 font-medium mb-1">Ð Ð°Ð½Ð½ÑÑ Ñ€ÐµÑ”ÑÑ‚Ñ€Ð°Ñ†Ñ–Ñ</div>
-                        <div className="text-xs text-gray-400">{message}</div>
-                        <a href="/shop" className="inline-block mt-3 px-4 py-2 bg-mushroom-neon/20 text-mushroom-neon rounded-xl text-sm font-medium hover:bg-mushroom-neon/30 transition-all">
-                          ÐšÑƒÐ¿Ð¸Ñ‚Ð¸ Ñ€ÐµÐ·ÐµÑ€Ð² Ð½Ð° Ñ‚ÑƒÑ€Ð½Ñ–Ñ€ â†’
-                        </a>
-                      </div>
+                      <button
+                        onClick={() => { handleUnregister(selectedEvent.id); setSelectedEvent(null); }}
+                        className="w-full btn-primary bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30"
+                      >
+                        Skasovat reestratsiyu
+                      </button>
                     );
                   }
 
                   return (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleRegister(selectedEvent.id)}
-                        className={`btn-primary flex-1 flex items-center justify-center gap-2 ${
-                          isExclusive ? 'border-2 border-yellow-500' : ''
-                        }`}
-                      >
-                        <Users size={16} />
-                        {isExclusive ? 'ðŸ† Ð£Ñ‡Ð°ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ (Ñ€ÐµÐ·ÐµÑ€Ð²)' : 'Ð£Ñ‡Ð°ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ'}
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => { handleRegister(selectedEvent.id); setSelectedEvent(null); }}
+                      disabled={!canRegister}
+                      className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed ${
+                        isExclusive ? 'border-2 border-yellow-500' : ''
+                      }`}
+                    >
+                      {isExclusive ? '🏆 Uchastvovat (rezerv)' : 'Uchastvovat'}
+                    </button>
                   );
                 })()}
               </motion.div>
             </motion.div>
-          );
+            );
           })()}
         </AnimatePresence>
       </div>
@@ -655,4 +514,3 @@ const EventsPage = () => {
 };
 
 export default memo(EventsPage);
-
