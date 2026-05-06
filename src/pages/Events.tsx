@@ -107,7 +107,8 @@ const syncEventToDiscord = async (event: Event) => {
 const getEventStatus = (event: Event) => {
   const now = new Date();
   const eventDateTime = new Date(`${event.date}T${event.time}`);
-  const diffHours = (eventDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const diffHours = (eventDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);  
+  
   
   if (eventDateTime < now) {
     return { status: 'completed', label: 'Zaversheno', color: 'bg-gray-500/20 text-gray-400 border border-gray-500/30' };
