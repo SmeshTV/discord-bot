@@ -306,9 +306,10 @@ const Navbar = () => {
 
             {/* Мобильное меню кнопка */}
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
+              onClick={() => setMobileOpen(prev => !prev)}
               className="lg:hidden p-2.5 rounded-xl text-gray-300 hover:text-mushroom-neon hover:bg-white/5 min-h-[48px] min-w-[48px] flex items-center justify-center"
               aria-label="Меню"
+              aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
