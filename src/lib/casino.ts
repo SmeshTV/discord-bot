@@ -15,6 +15,7 @@ const CASINO_CONFIG = {
     coinflip: 0.47,   // 47% (выглядит как 50/50)
     dice: 0.45,       // 45% (выглядит как "4,5,6 из 6")
     roulette: 0.46,   // 46% (выглядит как красное/чёрное)
+    rouletteGreen: 0.02, // 2% на зелёное (x3 множитель)
   },
 
   // Streak Protection — корректировка после серий
@@ -22,6 +23,9 @@ const CASINO_CONFIG = {
   streakBonusPerLoss: +0.05,    // +5% за каждое поражение подряд
   maxStreakPenalty: -0.25,      // Макс. штраф: -25% (шанс не ниже 20%)
   maxStreakBonus: +0.15,        // Макс. бонус: +15% (шанс не выше 62%)
+  
+  // Green multiplier for roulette
+  greenMultiplier: 3,        // x3 за зелёное
 
   // Daily Loss Cap
   dailyLossCapPercent: 0.50,    // Макс. потеря = 50% баланса
@@ -48,7 +52,7 @@ function loadStats(): PlayerCasinoStats {
     const raw = localStorage.getItem('lola_casino_stats');
     if (raw) {
       const stats = JSON.parse(raw);
-      // Сброс每天的
+      // Сброс каждый день
       if (stats.todayDate !== getTodayKey()) {
         return { streak: 0, todayLoss: 0, todayDate: getTodayKey(), totalGames: stats.totalGames || 0, totalWins: stats.totalWins || 0 };
       }
@@ -105,7 +109,14 @@ export function playCasinoGame(
 
   // 3. Определяем победу
   const roll = Math.random();
-  const win = roll < adjustedChance;
+  let win = roll < adjustedChance;
+  
+  // Green multiplier for roulette (x3)
+  let greenMultiplier = 1;
+  if (gameType === 'roulette' && playerChoice === 'green' && Math.random() < config.baseWinChance.rouletteGreen) {
+    win = true;
+    greenMultiplier = config.greenMultiplier;
+  }
 
   // 4. Near Miss
   let nearMiss = false;
@@ -126,7 +137,7 @@ export function playCasinoGame(
   saveStats(stats);
 
   // 6. Расчёт грибов + страховка
-  let mushroomsChange = win ? bet : -bet;
+  let mushroomsChange = win ? bet * greenMultiplier : -bet;
   let insuranceRefund = 0;
 
   // Страховка: возврат 30% при проигрыше
@@ -151,8 +162,13 @@ export function playCasinoGame(
       else detail += `Выпало ${1 + Math.floor(Math.random() * 3)}`;
       break;
     case 'roulette':
-      if (win) detail += (playerChoice === 'red' ? '🔴 Красное!' : '⚫ Чёрное!');
-      else if (nearMiss) detail += 'Шарик на зелёном... 0! 😱';
+      if (win) {
+        if (playerChoice === 'green') {
+          detail += `🟢 Зелёное! x${greenMultiplier} множитель!`;
+        } else {
+          detail += (playerChoice === 'red' ? '🔴 Красное!' : '⚫ Чёрное!');
+        }
+      } else if (nearMiss) detail += 'Шарик на зелёном... 0! 😱';
       else detail += (playerChoice === 'red' ? 'Выпало чёрное' : 'Выпало красное');
       break;
   }
