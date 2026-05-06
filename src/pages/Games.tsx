@@ -566,14 +566,22 @@ const Games = () => {
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  🔴 Krasnoe
+                  🔴 Красное
                 </button>
                 <button
                   onClick={() => playRoulette('black')}
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ⚫ Chernoye
+                  ⚫ Чёрное
+                </button>
+                <button
+                  onClick={() => playRoulette('green')}
+                  disabled={playing || !!betError}
+                  className="btn-primary text-xl px-8 py-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-green-400"
+                  title="x3 множитель (2% шанс)"
+                >
+                  🟢 Зелёное (x3)
                 </button>
               </div>
               <ResultDisplay result={result} />
