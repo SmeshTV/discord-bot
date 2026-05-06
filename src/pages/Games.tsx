@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 import { playCasinoGame, CasinoResult, getCasinoStats, formatStreak } from '../lib/casino';
 
 type GameType = 'coinflip' | 'dice' | 'roulette';
-type RouletteColor = 'red' | 'black';
+type RouletteColor = 'red' | 'black' | 'green';
 type CoinSide = 'heads' | 'tails';
 
 interface GameConfig {
@@ -18,6 +18,7 @@ interface GameConfig {
   emoji: string;
   minBet: number;
   maxBet: number;
+  color: string; // Tailwind color class
 }
 
 const GAMES: GameConfig[] = [
@@ -29,6 +30,7 @@ const GAMES: GameConfig[] = [
     emoji: '🪙',
     minBet: 5,
     maxBet: 500,
+    color: 'yellow'
   },
   {
     id: 'dice',
@@ -38,15 +40,17 @@ const GAMES: GameConfig[] = [
     emoji: '🎲',
     minBet: 10,
     maxBet: 1000,
+    color: 'blue'
   },
   {
     id: 'roulette',
     name: 'Ruletka',
     icon: Crown,
-    description: 'Krasnoe ili chernoe? Delay stavku!',
+    description: 'Krasnoe, chernoe ili zelenoe? Delay stavku!',
     emoji: '🎰',
     minBet: 20,
     maxBet: 2000,
+    color: 'red'
   },
 ];
 
@@ -99,17 +103,17 @@ function DiceAnimation({ result }: { result: CasinoResult | null }) {
   );
 }
 
-// ===== Animatsiya ruletki =====
+// ===== Animatsiya ruletki (zelenyi x3) =====
 function RouletteAnimation({ result, color }: { result: CasinoResult | null; color: RouletteColor | null }) {
   if (!result || !color) return null;
 
-  const winColor = result.win ? color : (color === 'red' ? 'black' : 'red');
+  const winColor = result.win ? color : (color === 'red' ? 'black' : color === 'green' ? 'green' : 'red');
   const isNearMiss = result.nearMiss;
 
   return (
     <div className="flex justify-center mb-6">
       <div className="relative w-28 h-28">
-        {/* Spinning wheel */}
+        {/* Spinning wheel with green x3 */}
         <motion.div
           initial={{ rotate: 0 }}
           animate={{ rotate: 1440 + Math.random() * 360 }}
@@ -126,7 +130,8 @@ function RouletteAnimation({ result, color }: { result: CasinoResult | null; col
               #dc2626 216deg 234deg, #1a1a2e 234deg 252deg,
               #dc2626 252deg 270deg, #1a1a2e 270deg 288deg,
               #dc2626 288deg 306deg, #1a1a2e 306deg 324deg,
-              #dc2626 324deg 342deg, #1a1a2e 342deg 360deg
+              #dc2626 324deg 342deg, #1a1a2e 342deg 360deg,
+              #16a34a 0deg 3.6deg, #16a34a 3.6deg 7.2deg
             )`,
           }}
         />
@@ -138,12 +143,16 @@ function RouletteAnimation({ result, color }: { result: CasinoResult | null; col
           className="absolute inset-0 flex items-center justify-center"
         >
           <div className={`w-6 h-6 rounded-full shadow-lg ${
-            isNearMiss ? 'bg-green-500' : winColor === 'red' ? 'bg-red-600' : 'bg-gray-900'
+            isNearMiss ? 'bg-green-500' : winColor === 'green' ? 'bg-green-600' : winColor === 'red' ? 'bg-red-600' : 'bg-gray-900'
           }`} />
         </motion.div>
         {/* Center */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-8 h-8 rounded-full bg-black/50" />
+        </div>
+        {/* Green x3 indicator */}
+        <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+          x3
         </div>
       </div>
     </div>
@@ -181,7 +190,7 @@ const ResultDisplay = ({ result }: { result: CasinoResult | null }) => {
         </span>
       </div>
       <p className={`text-sm ${
-        result.mushroomsChange > 0 ? 'text-mushroom-neon' : result.mushroomsChange < 0 ? 'text-red-400' : 'text-gray-500'
+        result.mushroomsChange > 0 ? 'text-green-400' : result.mushroomsChange < 0 ? 'text-red-400' : 'text-gray-500'
       }`}>
         {result.mushroomsChange > 0
           ? `+${result.mushroomsChange} 🍄`
@@ -387,7 +396,7 @@ const Games = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-5xl font-bold gradient-text mb-2">🎰 Kazino</h1>
+          <h1 className="text-5xl font-bold text-green-400 mb-2">🎰 Kazino</h1>
           <p className="text-gray-400">Ispytay udachu s umnoy sistemoy!</p>
         </motion.div>
 
@@ -399,10 +408,10 @@ const Games = () => {
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <Sparkles className="text-mushroom-neon" size={32} />
+              <Sparkles className="text-green-400" size={32} />
               <div>
                 <p className="text-gray-400">Tvoy balans</p>
-                <p className="text-3xl font-bold text-mushroom-neon">{balance} 🍄</p>
+                <p className="text-3xl font-bold text-green-400">{balance} 🍄</p>
               </div>
             </div>
 
@@ -478,12 +487,12 @@ const Games = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               className={`glass-card p-6 card-hover cursor-pointer border-2 transition-colors ${
-                selectedGame === game.id ? 'border-mushroom-neon' : 'border-transparent'
+                selectedGame === game.id ? `border-${game.color}-400` : 'border-transparent'
               }`}
               onClick={() => { setSelectedGame(game.id); setResult(null); setCoinSide(null); setRouletteColor(null); }}
             >
               <div className="text-6xl mb-4 text-center">{game.emoji}</div>
-              <h3 className="text-2xl font-bold mb-2 text-mushroom-neon">{game.name}</h3>
+              <h3 className={`text-2xl font-bold mb-2 text-${game.color}-400`}>{game.name}</h3>
               <p className="text-gray-400 mb-4">{game.description}</p>
               <p className="text-sm text-gray-500">Stavka: {game.minBet}–{game.maxBet} 🍄</p>
             </motion.div>
@@ -500,7 +509,7 @@ const Games = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="glass-card p-8 text-center"
             >
-              <h2 className="text-3xl font-bold mb-6">🪙 Monetka</h2>
+              <h2 className="text-3xl font-bold mb-6 text-yellow-400">🪙 Monetka</h2>
 
               <CoinFlipAnimation result={result} side={coinSide} />
 
@@ -532,7 +541,7 @@ const Games = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="glass-card p-8 text-center"
             >
-              <h2 className="text-3xl font-bold mb-6">🎲 Kosti</h2>
+              <h2 className="text-3xl font-bold mb-6 text-blue-400">🎲 Kosti</h2>
 
               <DiceAnimation result={result} />
 
@@ -554,9 +563,9 @@ const Games = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="glass-card p-8 text-center"
+              className="glass-card p-8 text-center border-2 border-green-500/30"
             >
-              <h2 className="text-3xl font-bold mb-6">🎰 Ruletka</h2>
+              <h2 className="text-3xl font-bold mb-6 text-green-400">🎰 Ruletka (x3 Zelenoey)</h2>
 
               <RouletteAnimation result={result} color={rouletteColor} />
 
@@ -566,22 +575,22 @@ const Games = () => {
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  🔴 Красное
+                  🔴 Krasnoe
                 </button>
                 <button
                   onClick={() => playRoulette('black')}
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ⚫ Чёрное
+                  ⚫ Chernoye
                 </button>
                 <button
                   onClick={() => playRoulette('green')}
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-green-400"
-                  title="x3 множитель (2% шанс)"
+                  title="x3 mnozhitel (2% shans)"
                 >
-                  🟢 Зелёное (x3)
+                  🟢 Zelenoye (x3)
                 </button>
               </div>
               <ResultDisplay result={result} />
