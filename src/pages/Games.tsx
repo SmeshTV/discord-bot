@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dice1, Coins, Crown, Sparkles, AlertCircle, CheckCircle, XCircle, Shield, Clover } from 'lucide-react';
 import { recordGame } from '../lib/database';
@@ -23,34 +23,34 @@ interface GameConfig {
 const GAMES: GameConfig[] = [
   {
     id: 'coinflip',
-    name: 'Монетка',
+    name: '╨£╨╛╨╜╨╡╤é╨║╨░',
     icon: Coins,
-    description: 'Угадай сторону монетки и удвой свои грибы!',
-    emoji: '🪙',
+    description: '╨ú╨│╨░╨┤╨░╨╣ ╤ü╤é╨╛╤Ç╨╛╨╜╤â ╨╝╨╛╨╜╨╡╤é╨║╨╕ ╨╕ ╤â╨┤╨▓╨╛╨╣ ╤ü╨▓╨╛╨╕ ╨│╤Ç╨╕╨▒╤ï!',
+    emoji: '≡ƒ¬Ö',
     minBet: 5,
     maxBet: 500,
   },
   {
     id: 'dice',
-    name: 'Кости',
+    name: '╨Ü╨╛╤ü╤é╨╕',
     icon: Dice1,
-    description: 'Выпадет 4, 5 или 6 — ты победил!',
-    emoji: '🎲',
+    description: '╨Æ╤ï╨┐╨░╨┤╨╡╤é 4, 5 ╨╕╨╗╨╕ 6 ΓÇö ╤é╤ï ╨┐╨╛╨▒╨╡╨┤╨╕╨╗!',
+    emoji: '≡ƒÄ▓',
     minBet: 10,
     maxBet: 1000,
   },
   {
     id: 'roulette',
-    name: 'Рулетка',
+    name: '╨á╤â╨╗╨╡╤é╨║╨░',
     icon: Crown,
-    description: 'Красное или чёрное? Делай ставку!',
-    emoji: '🎰',
+    description: '╨Ü╤Ç╨░╤ü╨╜╨╛╨╡ ╨╕╨╗╨╕ ╤ç╤æ╤Ç╨╜╨╛╨╡? ╨ö╨╡╨╗╨░╨╣ ╤ü╤é╨░╨▓╨║╤â!',
+    emoji: '≡ƒÄ░',
     minBet: 20,
     maxBet: 2000,
   },
 ];
 
-// ===== Анимация монетки =====
+// ===== ╨É╨╜╨╕╨╝╨░╤å╨╕╤Å ╨╝╨╛╨╜╨╡╤é╨║╨╕ =====
 function CoinFlipAnimation({ result, side }: { result: CasinoResult | null; side: CoinSide | null }) {
   if (!result || !side) return null;
 
@@ -70,21 +70,21 @@ function CoinFlipAnimation({ result, side }: { result: CasinoResult | null; side
             ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 border-yellow-700'
             : 'bg-gradient-to-br from-gray-300 to-gray-500 border-gray-600'
         } shadow-2xl`}>
-          {flipSide === 'heads' ? '👑' : '🌿'}
+          {flipSide === 'heads' ? '≡ƒææ' : '≡ƒî┐'}
         </div>
       </motion.div>
     </div>
   );
 }
 
-// ===== Анимация костей =====
+// ===== ╨É╨╜╨╕╨╝╨░╤å╨╕╤Å ╨║╨╛╤ü╤é╨╡╨╣ =====
 function DiceAnimation({ result }: { result: CasinoResult | null }) {
   if (!result) return null;
 
-  // Определяем число из detail
-  const match = result.detail.match(/Выпало (\d)/);
+  // ╨₧╨┐╤Ç╨╡╨┤╨╡╨╗╤Å╨╡╨╝ ╤ç╨╕╤ü╨╗╨╛ ╨╕╨╖ detail
+  const match = result.detail.match(/╨Æ╤ï╨┐╨░╨╗╨╛ (\d)/);
   const num = match ? parseInt(match[1]) : (result.win ? 5 : 2);
-  const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+  const diceFaces = ['ΓÜÇ', 'ΓÜü', 'ΓÜé', 'ΓÜâ', 'ΓÜä', 'ΓÜà'];
 
   return (
     <div className="flex justify-center mb-6">
@@ -100,7 +100,7 @@ function DiceAnimation({ result }: { result: CasinoResult | null }) {
   );
 }
 
-// ===== Анимация рулетки =====
+// ===== ╨É╨╜╨╕╨╝╨░╤å╨╕╤Å ╤Ç╤â╨╗╨╡╤é╨║╨╕ =====
 function RouletteAnimation({ result, color }: { result: CasinoResult | null; color: RouletteColor | null }) {
   if (!result || !color) return null;
 
@@ -151,7 +151,7 @@ function RouletteAnimation({ result, color }: { result: CasinoResult | null; col
   );
 }
 
-// ===== Компонент результата =====
+// ===== ╨Ü╨╛╨╝╨┐╨╛╨╜╨╡╨╜╤é ╤Ç╨╡╨╖╤â╨╗╤î╤é╨░╤é╨░ =====
 const ResultDisplay = ({ result }: { result: CasinoResult | null }) => {
   if (!result) return null;
 
@@ -185,24 +185,24 @@ const ResultDisplay = ({ result }: { result: CasinoResult | null }) => {
         result.mushroomsChange > 0 ? 'text-mushroom-neon' : result.mushroomsChange < 0 ? 'text-red-400' : 'text-gray-500'
       }`}>
         {result.mushroomsChange > 0
-          ? `+${result.mushroomsChange} 🍄`
+          ? `+${result.mushroomsChange} ≡ƒìä`
           : result.mushroomsChange < 0
-          ? `${result.mushroomsChange} 🍄`
-          : 'Без изменений'}
+          ? `${result.mushroomsChange} ≡ƒìä`
+          : '╨æ╨╡╨╖ ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╨╣'}
       </p>
       {result.insuranceRefund > 0 && (
         <p className="text-xs text-blue-400 mt-1 flex items-center gap-1">
-          <Shield size={10} /> Страховка вернула +{result.insuranceRefund} 🍄
+          <Shield size={10} /> ╨í╤é╤Ç╨░╤à╨╛╨▓╨║╨░ ╨▓╨╡╤Ç╨╜╤â╨╗╨░ +{result.insuranceRefund} ≡ƒìä
         </p>
       )}
       {result.mushroomsChange === 0 && !result.insuranceRefund && (
-        <p className="text-xs text-gray-600 mt-1">Дневной лимит потерь достигнут</p>
+        <p className="text-xs text-gray-600 mt-1">╨ö╨╜╨╡╨▓╨╜╨╛╨╣ ╨╗╨╕╨╝╨╕╤é ╨┐╨╛╤é╨╡╤Ç╤î ╨┤╨╛╤ü╤é╨╕╨│╨╜╤â╤é</p>
       )}
     </motion.div>
   );
 };
 
-// ===== Главная страница казино =====
+// ===== ╨ô╨╗╨░╨▓╨╜╨░╤Å ╤ü╤é╤Ç╨░╨╜╨╕╤å╨░ ╨║╨░╨╖╨╕╨╜╨╛ =====
 const Games = () => {
   const { user, refreshUser } = useAuth();
   const [selectedGame, setSelectedGame] = useState<GameType | null>(null);
@@ -217,7 +217,7 @@ const Games = () => {
   const [hasInsurance, setHasInsurance] = useState(false);
   const [hasLuckyHour, setHasLuckyHour] = useState(false);
 
-  // Rejoin: восстанавливаем состояние игры
+  // Rejoin: ╨▓╨╛╤ü╤ü╤é╨░╨╜╨░╨▓╨╗╨╕╨▓╨░╨╡╨╝ ╤ü╨╛╤ü╤é╨╛╤Å╨╜╨╕╨╡ ╨╕╨│╤Ç╤ï
   const [pendingGame, setPendingGame] = useState<{
     gameType: string;
     bet: number;
@@ -231,7 +231,7 @@ const Games = () => {
       const raw = localStorage.getItem('lola_pending_game');
       if (raw) {
         const data = JSON.parse(raw);
-        // Удаляем если старше 5 минут
+        // ╨ú╨┤╨░╨╗╤Å╨╡╨╝ ╨╡╤ü╨╗╨╕ ╤ü╤é╨░╤Ç╤ê╨╡ 5 ╨╝╨╕╨╜╤â╤é
         if (Date.now() - data.timestamp < 5 * 60 * 1000) return data;
         localStorage.removeItem('lola_pending_game');
       }
@@ -239,7 +239,7 @@ const Games = () => {
     return null;
   });
 
-  // Проверяем активную страховку и Удачный час
+  // ╨ƒ╤Ç╨╛╨▓╨╡╤Ç╤Å╨╡╨╝ ╨░╨║╤é╨╕╨▓╨╜╤â╤Ä ╤ü╤é╤Ç╨░╤à╨╛╨▓╨║╤â ╨╕ ╨ú╨┤╨░╤ç╨╜╤ï╨╣ ╤ç╨░╤ü
   useEffect(() => {
     if (!user) return;
     const checkPerks = async () => {
@@ -261,14 +261,14 @@ const Games = () => {
   const balance = user?.mushrooms ?? 0;
   const casinoStats = getCasinoStats();
 
-  // Валидация ставки
+  // ╨Æ╨░╨╗╨╕╨┤╨░╤å╨╕╤Å ╤ü╤é╨░╨▓╨║╨╕
   const validateBet = useCallback((value: number): string | null => {
-    if (!currentGame) return 'Выберите игру';
-    if (isNaN(value) || value <= 0) return 'Некорректная ставка';
-    if (!Number.isInteger(value)) return 'Ставка должна быть целым числом';
-    if (value < currentGame.minBet) return `Мин. ставка: ${currentGame.minBet} 🍄`;
-    if (value > currentGame.maxBet) return `Макс. ставка: ${currentGame.maxBet} 🍄`;
-    if (value > balance) return 'Недостаточно грибов';
+    if (!currentGame) return '╨Æ╤ï╨▒╨╡╤Ç╨╕╤é╨╡ ╨╕╨│╤Ç╤â';
+    if (isNaN(value) || value <= 0) return '╨¥╨╡╨║╨╛╤Ç╤Ç╨╡╨║╤é╨╜╨░╤Å ╤ü╤é╨░╨▓╨║╨░';
+    if (!Number.isInteger(value)) return '╨í╤é╨░╨▓╨║╨░ ╨┤╨╛╨╗╨╢╨╜╨░ ╨▒╤ï╤é╤î ╤å╨╡╨╗╤ï╨╝ ╤ç╨╕╤ü╨╗╨╛╨╝';
+    if (value < currentGame.minBet) return `╨£╨╕╨╜. ╤ü╤é╨░╨▓╨║╨░: ${currentGame.minBet} ≡ƒìä`;
+    if (value > currentGame.maxBet) return `╨£╨░╨║╤ü. ╤ü╤é╨░╨▓╨║╨░: ${currentGame.maxBet} ≡ƒìä`;
+    if (value > balance) return '╨¥╨╡╨┤╨╛╤ü╤é╨░╤é╨╛╤ç╨╜╨╛ ╨│╤Ç╨╕╨▒╨╛╨▓';
     return null;
   }, [currentGame, balance]);
 
@@ -280,7 +280,7 @@ const Games = () => {
     if (currentGame) setBet(currentGame.minBet);
   }, [currentGame]);
 
-  // Единая функция игры
+  // ╨ò╨┤╨╕╨╜╨░╤Å ╤ä╤â╨╜╨║╤å╨╕╤Å ╨╕╨│╤Ç╤ï
   const playGame = useCallback(async (
     gameType: string,
     betAmount: number,
@@ -303,7 +303,7 @@ const Games = () => {
 
     const change = mushroomsChange ?? (win ? betAmount : -betAmount);
 
-    // Сохраняем для rejoin (если страница перезагрузится)
+    // ╨í╨╛╤à╤Ç╨░╨╜╤Å╨╡╨╝ ╨┤╨╗╤Å rejoin (╨╡╤ü╨╗╨╕ ╤ü╤é╤Ç╨░╨╜╨╕╤å╨░ ╨┐╨╡╤Ç╨╡╨╖╨░╨│╤Ç╤â╨╖╨╕╤é╤ü╤Å)
     const pendingData = { gameType, bet: betAmount, win, detail: detail || '', nearMiss: nearMiss ?? false, change, timestamp: Date.now() };
     localStorage.setItem('lola_pending_game', JSON.stringify(pendingData));
 
@@ -314,20 +314,20 @@ const Games = () => {
       setResult({
         win,
         nearMiss: nearMiss ?? false,
-        detail: detail || (win ? 'Победа!' : 'Поражение!'),
+        detail: detail || (win ? '╨ƒ╨╛╨▒╨╡╨┤╨░!' : '╨ƒ╨╛╤Ç╨░╨╢╨╡╨╜╨╕╨╡!'),
         mushroomsChange: change,
       });
-      // Очи pending после успешной записи
+      // ╨₧╤ç╨╕ pending ╨┐╨╛╤ü╨╗╨╡ ╤â╤ü╨┐╨╡╤ê╨╜╨╛╨╣ ╨╖╨░╨┐╨╕╤ü╨╕
       localStorage.removeItem('lola_pending_game');
     } else {
-      setResult({ win: false, nearMiss: false, detail: 'Ошибка записи игры. Попробуй снова.', mushroomsChange: 0 });
+      setResult({ win: false, nearMiss: false, detail: '╨₧╤ê╨╕╨▒╨║╨░ ╨╖╨░╨┐╨╕╤ü╨╕ ╨╕╨│╤Ç╤ï. ╨ƒ╨╛╨┐╤Ç╨╛╨▒╤â╨╣ ╤ü╨╜╨╛╨▓╨░.', mushroomsChange: 0 });
     }
 
     setPlaying(false);
     gameInProgress.current = false;
   }, [user, validateBet, refreshUser]);
 
-  // Восстанавливаем pending game при загрузке
+  // ╨Æ╨╛╤ü╤ü╤é╨░╨╜╨░╨▓╨╗╨╕╨▓╨░╨╡╨╝ pending game ╨┐╤Ç╨╕ ╨╖╨░╨│╤Ç╤â╨╖╨║╨╡
   useEffect(() => {
     if (pendingGame && user && !gameInProgress.current) {
       const { gameType, bet: b, win, detail, nearMiss, change } = pendingGame;
@@ -344,14 +344,14 @@ const Games = () => {
         gameInProgress.current = false;
       });
     }
-  }, []); // Только при монтировании
+  }, []); // ╨ó╨╛╨╗╤î╨║╨╛ ╨┐╤Ç╨╕ ╨╝╨╛╨╜╤é╨╕╤Ç╨╛╨▓╨░╨╜╨╕╨╕
 
   const playCoinFlip = useCallback((choice: CoinSide) => {
     if (!user || playing) return;
     setCoinSide(choice);
     const casinoResult = playCasinoGame('coinflip', bet, balance, choice, hasInsurance, hasLuckyHour);
     setTimeout(() => {
-      playGame('Монетка', bet, casinoResult.win, casinoResult.detail, casinoResult.nearMiss, casinoResult.mushroomsChange);
+      playGame('╨£╨╛╨╜╨╡╤é╨║╨░', bet, casinoResult.win, casinoResult.detail, casinoResult.nearMiss, casinoResult.mushroomsChange);
     }, 1600);
   }, [user, bet, playing, balance, playGame, hasInsurance, hasLuckyHour]);
 
@@ -360,7 +360,7 @@ const Games = () => {
     const casinoResult = playCasinoGame('dice', bet, balance, undefined, hasInsurance, hasLuckyHour);
     setPlaying(true);
     setTimeout(() => {
-      playGame('Кости', bet, casinoResult.win, casinoResult.detail, casinoResult.nearMiss, casinoResult.mushroomsChange);
+      playGame('╨Ü╨╛╤ü╤é╨╕', bet, casinoResult.win, casinoResult.detail, casinoResult.nearMiss, casinoResult.mushroomsChange);
     }, 1200);
   }, [user, bet, playing, balance, playGame, hasInsurance, hasLuckyHour]);
 
@@ -369,7 +369,7 @@ const Games = () => {
     setRouletteColor(color);
     const casinoResult = playCasinoGame('roulette', bet, balance, color, hasInsurance, hasLuckyHour);
     setTimeout(() => {
-      playGame('Рулетка', bet, casinoResult.win, casinoResult.detail, casinoResult.nearMiss, casinoResult.mushroomsChange);
+      playGame('╨á╤â╨╗╨╡╤é╨║╨░', bet, casinoResult.win, casinoResult.detail, casinoResult.nearMiss, casinoResult.mushroomsChange);
     }, 2700);
   }, [user, bet, playing, balance, playGame, hasInsurance, hasLuckyHour]);
 
@@ -377,7 +377,7 @@ const Games = () => {
     return (
       <div className="pt-24 pb-20 px-4 flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="text-2xl text-gray-400 mb-4">Войдите через Discord для игры</p>
+          <p className="text-2xl text-gray-400 mb-4">╨Æ╨╛╨╣╨┤╨╕╤é╨╡ ╤ç╨╡╤Ç╨╡╨╖ Discord ╨┤╨╗╤Å ╨╕╨│╤Ç╤ï</p>
         </div>
       </div>
     );
@@ -391,8 +391,8 @@ const Games = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-5xl font-bold gradient-text mb-2">🎰 Казино</h1>
-          <p className="text-gray-400">Испытай удачу с умной системой!</p>
+          <h1 className="text-5xl font-bold gradient-text mb-2">≡ƒÄ░ ╨Ü╨░╨╖╨╕╨╜╨╛</h1>
+          <p className="text-gray-400">╨ÿ╤ü╨┐╤ï╤é╨░╨╣ ╤â╨┤╨░╤ç╤â ╤ü ╤â╨╝╨╜╨╛╨╣ ╤ü╨╕╤ü╤é╨╡╨╝╨╛╨╣!</p>
         </motion.div>
 
         {/* Balance & Stats */}
@@ -405,16 +405,16 @@ const Games = () => {
             <div className="flex items-center gap-4">
               <Sparkles className="text-mushroom-neon" size={32} />
               <div>
-                <p className="text-gray-400">Твой баланс</p>
-                <p className="text-3xl font-bold text-mushroom-neon">{balance} 🍄</p>
+                <p className="text-gray-400">╨ó╨▓╨╛╨╣ ╨▒╨░╨╗╨░╨╜╤ü</p>
+                <p className="text-3xl font-bold text-mushroom-neon">{balance} ≡ƒìä</p>
               </div>
             </div>
 
             {/* Casino Stats */}
             {casinoStats.totalGames > 0 && (
               <div className="flex gap-4 text-xs text-gray-500">
-                <span>🎮 {casinoStats.totalGames} игр</span>
-                <span>🏆 {casinoStats.totalWins} побед</span>
+                <span>≡ƒÄ« {casinoStats.totalGames} ╨╕╨│╤Ç</span>
+                <span>≡ƒÅå {casinoStats.totalWins} ╨┐╨╛╨▒╨╡╨┤</span>
                 {casinoStats.streak !== 0 && (
                   <span className={casinoStats.streak > 0 ? 'text-orange-400' : 'text-red-400'}>
                     {formatStreak(casinoStats.streak)}
@@ -427,12 +427,12 @@ const Games = () => {
             <div className="flex gap-2">
               {hasInsurance && (
                 <span className="flex items-center gap-1 px-2 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-xs text-blue-400">
-                  <Shield size={12} /> Страховка
+                  <Shield size={12} /> ╨í╤é╤Ç╨░╤à╨╛╨▓╨║╨░
                 </span>
               )}
               {hasLuckyHour && (
                 <span className="flex items-center gap-1 px-2 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-xs text-yellow-400 animate-pulse">
-                  <Clover size={12} /> Удачный час
+                  <Clover size={12} /> ╨ú╨┤╨░╤ç╨╜╤ï╨╣ ╤ç╨░╤ü
                 </span>
               )}
             </div>
@@ -440,7 +440,7 @@ const Games = () => {
 
           {/* Bet Controls */}
           <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/10">
-            <label className="text-gray-400 whitespace-nowrap">Ставка:</label>
+            <label className="text-gray-400 whitespace-nowrap">╨í╤é╨░╨▓╨║╨░:</label>
             <div className="flex gap-1">
               <input
                 type="number"
@@ -452,7 +452,7 @@ const Games = () => {
                 min={currentGame?.minBet ?? 5}
                 max={currentGame?.maxBet ?? 2000}
               />
-              <button onClick={() => setBet(Math.floor(balance / 2))} className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm">½</button>
+              <button onClick={() => setBet(Math.floor(balance / 2))} className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm">┬╜</button>
               <button onClick={() => setBet(balance)} className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm">MAX</button>
             </div>
           </div>
@@ -489,7 +489,7 @@ const Games = () => {
               <div className="text-6xl mb-4 text-center">{game.emoji}</div>
               <h3 className="text-2xl font-bold mb-2 text-mushroom-neon">{game.name}</h3>
               <p className="text-gray-400 mb-4">{game.description}</p>
-              <p className="text-sm text-gray-500">Ставка: {game.minBet}–{game.maxBet} 🍄</p>
+              <p className="text-sm text-gray-500">╨í╤é╨░╨▓╨║╨░: {game.minBet}ΓÇô{game.maxBet} ≡ƒìä</p>
             </motion.div>
           ))}
         </div>
@@ -504,7 +504,7 @@ const Games = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="glass-card p-8 text-center"
             >
-              <h2 className="text-3xl font-bold mb-6">🪙 Монетка</h2>
+              <h2 className="text-3xl font-bold mb-6">≡ƒ¬Ö ╨£╨╛╨╜╨╡╤é╨║╨░</h2>
 
               <CoinFlipAnimation result={result} side={coinSide} />
 
@@ -514,14 +514,14 @@ const Games = () => {
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  👑 Орёл
+                  ≡ƒææ ╨₧╤Ç╤æ╨╗
                 </button>
                 <button
                   onClick={() => playCoinFlip('tails')}
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 bg-gradient-to-r from-gray-400 to-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  🌿 Решка
+                  ≡ƒî┐ ╨á╨╡╤ê╨║╨░
                 </button>
               </div>
               <ResultDisplay result={result} />
@@ -536,17 +536,17 @@ const Games = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="glass-card p-8 text-center"
             >
-              <h2 className="text-3xl font-bold mb-6">🎲 Кости</h2>
+              <h2 className="text-3xl font-bold mb-6">≡ƒÄ▓ ╨Ü╨╛╤ü╤é╨╕</h2>
 
               <DiceAnimation result={result} />
 
-              <p className="text-gray-400 mb-6">Выпадет 4, 5 или 6 — ты победил!</p>
+              <p className="text-gray-400 mb-6">╨Æ╤ï╨┐╨░╨┤╨╡╤é 4, 5 ╨╕╨╗╨╕ 6 ΓÇö ╤é╤ï ╨┐╨╛╨▒╨╡╨┤╨╕╨╗!</p>
               <button
                 onClick={playDice}
                 disabled={playing || !!betError}
                 className="btn-primary text-xl px-8 py-4 mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {playing ? 'Бросаем...' : 'Бросить кости'}
+                {playing ? '╨æ╤Ç╨╛╤ü╨░╨╡╨╝...' : '╨æ╤Ç╨╛╤ü╨╕╤é╤î ╨║╨╛╤ü╤é╨╕'}
               </button>
               <ResultDisplay result={result} />
             </motion.div>
@@ -560,7 +560,7 @@ const Games = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="glass-card p-8 text-center"
             >
-              <h2 className="text-3xl font-bold mb-6">🎰 Рулетка</h2>
+              <h2 className="text-3xl font-bold mb-6">≡ƒÄ░ ╨á╤â╨╗╨╡╤é╨║╨░</h2>
 
               <RouletteAnimation result={result} color={rouletteColor} />
 
@@ -570,14 +570,14 @@ const Games = () => {
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  🔴 Красное
+                  ≡ƒö┤ ╨Ü╤Ç╨░╤ü╨╜╨╛╨╡
                 </button>
                 <button
                   onClick={() => playRoulette('black')}
                   disabled={playing || !!betError}
                   className="btn-primary text-xl px-8 py-4 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ⚫ Чёрное
+                  ΓÜ½ ╨º╤æ╤Ç╨╜╨╛╨╡
                 </button>
               </div>
               <ResultDisplay result={result} />

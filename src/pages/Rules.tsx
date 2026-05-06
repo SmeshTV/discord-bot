@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+﻿import { memo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Shield, MessageSquare, Gamepad2, User, Crown, AlertTriangle, Heart, Volume2, Lock, Mic, Users } from 'lucide-react';
 
@@ -269,7 +269,7 @@ const RulesPage = () => {
         >
           <h3 className="text-2xl font-bold mb-4">Хочешь роль на сервере?</h3>
           <p className="text-gray-400 mb-6">
-            Перейди во вкладку "Сообщество" и подай заявку на感兴趣的 роль!
+            Перейди во вкладку "Сообщество" и подай заявку на интересующую роль!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="/community" className="btn-primary inline-flex items-center gap-2">
@@ -305,3 +305,5 @@ const RulesPage = () => {
 };
 
 export default memo(RulesPage);
+
+
