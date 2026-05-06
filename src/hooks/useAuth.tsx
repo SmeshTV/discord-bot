@@ -3,6 +3,7 @@ import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { getOrCreateUser, User as LolaUser } from '../lib/database';
 import { logger } from '../lib/logger';
+import { getDiscordAvatarUrl, getAvatarUrlFromMetadata, getDefaultAvatarUrl } from '../lib/avatar';
 
 export interface UserPermissions {
   isAdmin: boolean;
@@ -226,9 +227,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         || supabaseUser.user_metadata?.full_name
         || supabaseUser.email?.split('@')[0]
         || 'User';
-      const avatarUrl = supabaseUser.user_metadata?.avatar_url
-        || supabaseUser.user_metadata?.avatar
-        || supabaseUser.user_metadata?.picture;
+      
+      // Get avatar URL using helper function
+      let avatarUrl = getAvatarUrlFromMetadata(supabaseUser.user_metadata);
+      
+      // Fallback to Discord CDN if we have discord ID
+      if (!avatarUrl) {
+        const discordId = supabaseUser.user_metadata?.provider_id 
+          || (supabaseUser.app_metadata?.provider === 'discord' ? supabaseUser.identities?.[0]?.id : null)
+          || supabaseUser.user_metadata?.sub;
+        if (discordId) {
+          avatarUrl = getDefaultAvatarUrl(discordId);
+        }
+      }
 
       // Настоящий Discord ID (snowflake)
       // Приоритет: metadata.provider_id -> metadata.sub -> user.id
