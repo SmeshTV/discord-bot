@@ -37,27 +37,6 @@ const games: MiniGame[] = [
     path: '/checkers-online/new',
     status: 'online',
   },
-  {
-    id: 'poker',
-    name: 'Покер Texas Hold\'em',
-    emoji: '🃏',
-    description: 'Классический покер с комнатами и ставками. Создай стол и пригласи друзей!',
-    players: '2-6 игроков',
-    hasBet: true,
-    path: '/poker',
-    status: 'online',
-    betInfo: 'Ставки от 1 до 1000 🍄',
-  },
-  {
-    id: 'durak',
-    name: 'Дурак',
-    emoji: '🃏',
-    description: 'Подкидной/переводной дурак онлайн. Временно недоступен.',
-    players: '2-6 игроков',
-    hasBet: false,
-    path: '/durak',
-    status: 'maintenance',
-  },
 ];
 
 const MiniGames = () => {

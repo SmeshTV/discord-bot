@@ -24,8 +24,6 @@ const Warnings = lazy(() => import('./pages/Warnings'));
 const GameRooms = lazy(() => import('./pages/GameRooms'));
 const Checkers = lazy(() => import('./pages/Checkers'));
 const CheckersOnline = lazy(() => import('./pages/CheckersOnline'));
-const Durak = lazy(() => import('./pages/Durak'));
-const Poker = lazy(() => import('./pages/Poker'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 const Team = lazy(() => import('./pages/Team'));
@@ -84,9 +82,6 @@ function App() {
                 <Route path="/rps" element={<GameRooms />} />
                 <Route path="/checkers" element={<Checkers />} />
                 <Route path="/checkers-online/:roomId" element={<CheckersOnline />} />
-                <Route path="/durak" element={<Durak />} />
-                <Route path="/durak/:roomId" element={<Durak />} />
-                <Route path="/poker" element={<Poker />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/team" element={<Team />} />
                 <Route path="/contact" element={<Contact />} />

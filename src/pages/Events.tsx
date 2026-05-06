@@ -75,7 +75,6 @@ interface EventReview {
 const gameOptions = [
   { name: 'Among Us', emoji: '🚀' },
   { name: 'Shakhmaty', emoji: '♟️' },
-  { name: 'Durak', emoji: '🃏' },
   { name: 'Clash Royale', emoji: '👑' },
   { name: 'Brawl Stars', emoji: '⭐' },
   { name: 'Minecraft', emoji: '⛏️' },
