@@ -4,6 +4,7 @@ import { Trophy, Star, Gamepad2, Sprout, Shield, RefreshCw, Calendar, Clock, Zap
 import { getRecentGames, Game, User } from '../lib/database';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
+import { getAvatarUrl } from '../lib/avatar';
 import { getRoleName, getRoleColor, sortRolesByPriority, sortRolesByHierarchy, ROLE_CATEGORIES, getRoleCategory } from '../lib/roles';
 import { getCached, setCached } from '../lib/cache';
 import { createNotification } from '../lib/notifications';
@@ -375,20 +376,24 @@ const Dashboard = () => {
                 {user.avatar_frame === 'frame-bronze' && (
                   <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-amber-600 via-amber-700 to-orange-800 z-0" />
                 )}
-                <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center relative z-10 ${
-                  user.avatar_frame === 'frame-gold' ? 'border-4 border-yellow-400' :
-                  user.avatar_frame === 'frame-silver' ? 'border-4 border-gray-300' :
-                  user.avatar_frame === 'frame-bronze' ? 'border-4 border-amber-700' :
-                  'border-4 border-mushroom-neon'
-                }`}>
-                  {user.custom_avatar_url ? (
-                    <img src={user.custom_avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-mushroom-neon to-mushroom-purple flex items-center justify-center text-6xl">
-                      {user.username.charAt(0)}
-                    </div>
-                  )}
-                </div>
+                 <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center relative z-10 ${
+                   user.avatar_frame === 'frame-gold' ? 'border-4 border-yellow-400' :
+                   user.avatar_frame === 'frame-silver' ? 'border-4 border-gray-300' :
+                   user.avatar_frame === 'frame-bronze' ? 'border-4 border-amber-700' :
+                   'border-4 border-mushroom-neon'
+                 }`}>
+                   {(() => {
+                     const avatarUrl = getAvatarUrl(user);
+                     if (avatarUrl) {
+                       return <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />;
+                     }
+                     return (
+                       <div className="w-full h-full bg-gradient-to-br from-mushroom-neon to-mushroom-purple flex items-center justify-center text-6xl">
+                         {user.username.charAt(0)}
+                       </div>
+                     );
+                   })()}
+                 </div>
                 <div className="absolute -bottom-2 -right-2 z-20 bg-[#0f0f1a] border-2 border-mushroom-neon text-white px-2 py-0.5 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg">
                   {getLevelEmoji(user.level)} {user.level}
                 </div>

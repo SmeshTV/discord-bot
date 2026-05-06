@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { getRoleName, getRoleColor } from '../lib/roles';
 import { getCached, setCached } from '../lib/cache';
 import { useAuth } from '../hooks/useAuth';
+import { getAvatarUrl } from '../lib/avatar';
 
 const getLevelEmoji = (level: number): string => {
   if (level >= 26) return '🐉';
@@ -208,20 +209,24 @@ const PlayerProfile = () => {
                     {player.avatar_frame === 'frame-bronze' && (
                       <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-amber-600 via-amber-700 to-orange-800 z-0" />
                     )}
-                    <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center relative z-10 ${
-                      player.avatar_frame === 'frame-gold' ? 'border-4 border-yellow-400' :
-                      player.avatar_frame === 'frame-silver' ? 'border-4 border-gray-300' :
-                      player.avatar_frame === 'frame-bronze' ? 'border-4 border-amber-700' :
-                      'border-4 border-mushroom-neon'
-                    }`}>
-                      {player.custom_avatar_url ? (
-                        <img src={player.custom_avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-mushroom-neon to-mushroom-purple flex items-center justify-center text-6xl">
-                          {player.username.charAt(0)}
-                        </div>
-                      )}
-                    </div>
+                     <div className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center relative z-10 ${
+                       player.avatar_frame === 'frame-gold' ? 'border-4 border-yellow-400' :
+                       player.avatar_frame === 'frame-silver' ? 'border-4 border-gray-300' :
+                       player.avatar_frame === 'frame-bronze' ? 'border-4 border-amber-700' :
+                       'border-4 border-mushroom-neon'
+                     }`}>
+                       {(() => {
+                         const avatarUrl = getAvatarUrl(player);
+                         if (avatarUrl) {
+                           return <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />;
+                         }
+                         return (
+                           <div className="w-full h-full bg-gradient-to-br from-mushroom-neon to-mushroom-purple flex items-center justify-center text-6xl">
+                             {player.username.charAt(0)}
+                           </div>
+                         );
+                       })()}
+                     </div>
                     <div className="absolute -bottom-2 -right-2 z-20 bg-[#0f0f1a] border-2 border-mushroom-neon text-white px-2 py-0.5 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg">
                       {getLevelEmoji(player.level)} {player.level}
                     </div>
